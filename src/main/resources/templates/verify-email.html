@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email Verification</title>
+    <script>
+        function startCountdown(expiryDate) {
+            const countdownElement = document.getElementById('timer');
+            const expiryTime = new Date(expiryDate).getTime();
+
+            function updateCountdown() {
+                const currentTime = new Date().getTime();
+                const timeDifference = expiryTime - currentTime;
+
+                // Tính toán thời gian
+                const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                // Hiển thị kết quả
+                if (timeDifference > 0) {
+                    countdownElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+                } else {
+                    countdownElement.innerHTML = "Thời gian hết hạn!";
+                    clearInterval(countdownInterval);
+                    document.getElementById('verifyBtn').style.display = 'none'; // Ẩn nút khi hết hạn
+                }
+            }
+
+            const countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        window.onload = function() {
+            const expiryDate = document.getElementById('timer').getAttribute('data-expiry-date');
+            startCountdown(expiryDate);
+        };
+    </script>
+</head>
+<body>
+<h1>Xác nhận Email</h1>
+
+<!-- Hiển thị thời gian đếm ngược -->
+<p id="timer" data-expiry-date="${expiryDate}"></p>
+
+<!-- Nút xác nhận với FE_ORIGIN từ application.properties -->
+<a th:href="${feOrigin} + '/register/' + ${code}" id="verifyBtn">Xác nhận Email</a>
+</body>
+</html>
