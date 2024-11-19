@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/register")
+@RequestMapping("/register")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterController {
