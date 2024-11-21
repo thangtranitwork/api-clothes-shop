@@ -1,11 +1,10 @@
 package com.clothes.noc.dto.request;
 
+import com.clothes.noc.entity.Platform;
+import com.clothes.noc.validator.Password;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import com.clothes.noc.entity.Platform;
-import com.clothes.noc.entity.Role;
 
 @Data
 @NoArgsConstructor
@@ -15,10 +14,10 @@ import com.clothes.noc.entity.Role;
 public class RegisterRequest {
     @Email(message = "INVALID_EMAIL")
     String email;
-    @Size(min = 8, message = "INVALID_PASSWORD")
+    @Password
     String password;
-    @Builder.Default
-    String roles = Role.USER.name();
+    String firstname;
+    String lastname;
     @Builder.Default
     String platform = Platform.APP.name();
 }

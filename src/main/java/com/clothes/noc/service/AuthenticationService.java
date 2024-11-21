@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +25,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationService {
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
-    JwtUtil jwtUtil;
+    final UserRepository userRepository;
+    final PasswordEncoder passwordEncoder;
+    final JwtUtil jwtUtil;
     int MAX_FAILED_ATTEMPTS = 5;
     @Value("${jwt.refreshToken.duration}")
     @NonFinal
@@ -87,7 +86,6 @@ public class AuthenticationService {
                 .build();
     }
 
-    @PreAuthorize("@jwtUtil.getCurrentUserId() == @jwtUtil.getSub(#refreshToken)")
     public void logout(String refreshToken, HttpServletResponse response) {
             jwtUtil.logoutToken(refreshToken);
             Cookie refreshTokenCookie = new Cookie("refreshToken", "");
@@ -97,7 +95,6 @@ public class AuthenticationService {
             refreshTokenCookie.setMaxAge(0);
             response.addCookie(refreshTokenCookie);
     }
-
 
     public IntrospectResponse introspect(IntrospectRequest request) {
         if (jwtUtil.isRefreshToken(request.getAccessToken())) {
@@ -122,7 +119,6 @@ public class AuthenticationService {
         }
         return false;
     }
-
 
     public void processFailedLoginAttempt(User user) {
 

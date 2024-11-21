@@ -1,17 +1,12 @@
 package com.clothes.noc.service;
 
-import com.clothes.noc.dto.request.OAuth2RegisterRequest;
-import com.clothes.noc.dto.request.RegisterRequest;
-import com.clothes.noc.dto.response.AuthenticationResponse;
 import com.clothes.noc.entity.Platform;
 import com.clothes.noc.entity.User;
 import com.clothes.noc.entity.VerifyCode;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
-import com.clothes.noc.mapper.UserMapper;
 import com.clothes.noc.repository.UserRepository;
 import com.clothes.noc.repository.VerifyCodeRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,58 +25,32 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RegisterService {
+public class UpdatePasswordService {
     final UserRepository userRepository;
     final VerifyCodeRepository verifyCodeRepository;
-    final PasswordEncoder passwordEncoder;
-    final UserMapper userMapper;
     final EmailService emailService;
-    final AuthenticationService authenticationService;
-
+    final PasswordEncoder passwordEncoder;
     @Value("${verify.email.duration}")
     int verifyEmailDuration;
-
     @Value("${FE_ORIGIN}")
-    String feOrigin;
-
+    private String feOrigin;
     static final String VERIFY_EMAIL_TEMPLATE = "verify-email";
-    static final String VERIFY_EMAIL_SUBJECT = "Xác minh email";
+    static final String VERIFY_EMAIL_SUBJECT = "Xác minh đổi mật khẩu";
 
-    public void register(RegisterRequest request) {
-        validateUserDoesNotExist(request.getEmail(), request.getPlatform());
 
-        if (Platform.APP.name().equals(request.getPlatform())) {
-            request.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-
-        User user = userMapper.toUser(request);
-        userRepository.save(user);
-
+    public void sendMail(String email) {
+        User user = userRepository.findByEmailAndPlatform(email, Platform.APP).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTS));
+        deleteOldVerifyCode(user);
         VerifyCode verifyCode = createAndSaveVerifyCode(user);
         sendVerificationEmail(user, verifyCode);
     }
 
     private void deleteOldVerifyCode(User user) {
-        if(user.getVerifyCode() != null) {
+        if (user.getVerifyCode() != null) {
             verifyCodeRepository.delete(user.getVerifyCode());
             user.setVerifyCode(null);
         }
-    }
-
-    public void register(OAuth2RegisterRequest request) {
-        validateUserDoesNotExist(request.getEmail(), request.getPlatform());
-        User user = userMapper.toUser(request);
-        userRepository.save(user);
-    }
-
-    private void validateUserDoesNotExist(String email, String platform) {
-        userRepository.findByEmailAndPlatform(email, Platform.valueOf(platform)).ifPresent(u -> {
-            if (u.isVerified()) {
-                throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
-            } else {
-                throw new AppException(ErrorCode.USER_HAS_NOT_VERIFIED_EMAIL);
-            }
-        });
     }
 
     public VerifyCode createAndSaveVerifyCode(User user) {
@@ -99,30 +68,44 @@ public class RegisterService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("expiryDate", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(verifyCode.getExpiryTime()));
         variables.put("title", VERIFY_EMAIL_SUBJECT);
-        variables.put("verificationLink", String.format("%s/account/?tab=register&email=%s&step=2&code=%s", feOrigin, user.getEmail(), verifyCode.getCode()));
+        variables.put("verificationLink", String.format("%s/account/?tab=change-password&email=%s&step=2&code=%s", feOrigin, user.getEmail(), verifyCode.getCode()));
         emailService.sendMail(user.getEmail(), VERIFY_EMAIL_SUBJECT, variables, VERIFY_EMAIL_TEMPLATE);
     }
 
-    public AuthenticationResponse verify(String code, HttpServletResponse response) {
+    public void verify(String email, String code) {
         try {
             UUID.fromString(code);
         } catch (IllegalArgumentException e) {
             throw new AppException(ErrorCode.VERIFY_CODE_INVALID);
         }
 
-        VerifyCode verifyCode = verifyCodeRepository.findById(code)
-                .orElseThrow(() -> new AppException(ErrorCode.VERIFY_CODE_DOES_NOT_EXIST));
+        User user = userRepository.findByEmailAndPlatform(email, Platform.APP)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        VerifyCode verifyCode = user.getVerifyCode();
+        if (verifyCode == null) {
+            throw new AppException(ErrorCode.VERIFY_CODE_INVALID);
+        }
 
         if (verifyCode.getExpiryTime().before(new Date())) {
             throw new AppException(ErrorCode.VERIFY_CODE_TIMEOUT);
         }
 
-        User user = verifyCode.getUser();
-        user.setVerified(true);
-        userRepository.save(user);
-        verifyCodeRepository.delete(verifyCode);
+        verifyCode.setVerified(true);
+        verifyCodeRepository.save(verifyCode);
+    }
 
-        return authenticationService.generateResponse(user, response);
+    public void update(String email, String password) {
+        User user = userRepository.findByEmailAndPlatform(email, Platform.APP)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
+
+        VerifyCode verifyCode = user.getVerifyCode();
+        if (verifyCode == null || !verifyCode.isVerified()) {
+            throw new AppException(ErrorCode.VERIFY_CODE_INVALID);
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
     }
 
     public void resend(String email) {

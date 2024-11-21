@@ -24,8 +24,7 @@ public class UserController {
                 .build();
     }
 
-
-    @PutMapping("/update/profile")
+    @PutMapping("/update-profile")
     ApiResponse<UserProfileResponse> updateProfile(@RequestBody @Valid UserProfileRequest request) {
         return ApiResponse.<UserProfileResponse>builder()
                 .body(userService.updateProfile(request))

@@ -22,7 +22,8 @@ public class User {
     String email;
     String password;
     @Enumerated(EnumType.STRING)
-    Role role;
+    @Builder.Default
+    Role role = Role.USER;
     @Enumerated(EnumType.STRING)
     Platform platform;
     boolean isVerified;

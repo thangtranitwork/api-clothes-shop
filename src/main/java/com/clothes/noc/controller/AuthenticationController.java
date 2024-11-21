@@ -50,5 +50,4 @@ public class AuthenticationController {
                 .body(authenticationService.refreshToken(refreshToken))
                 .build();
     }
-
 }
