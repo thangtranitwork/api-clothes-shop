@@ -1,5 +1,7 @@
 package com.clothes.noc.dto.response;
 
+import com.clothes.noc.entity.Platform;
+import com.clothes.noc.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,10 +12,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserProfileResponse {
     String id;
-    @Builder.Default
-    String lastname = "";
-    @Builder.Default
-    String firstname = "";
-    @Builder.Default
-    String avatar = "";
+    String lastname;
+    String firstname;
+    String email;
+    Platform platform;
+    Role role;
 }

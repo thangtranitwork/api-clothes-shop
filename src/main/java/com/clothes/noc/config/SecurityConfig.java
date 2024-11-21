@@ -42,10 +42,11 @@ public class SecurityConfig {
     @NonFinal
     private final String[] PUBLIC_URL = new String[]
             {
-                    "/auth/login",
-                    "/auth/refresh",
+                    "/auth/**",
                     "/register/**",
                     "/users/{id}/**",
+                    "/update-password/**",
+                    "/forgot-password/**",
             };
 
 

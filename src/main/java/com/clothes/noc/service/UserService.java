@@ -17,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
+
     public UserProfileResponse getProfile() {
         User user = userRepository.findById(getCurrentUserId()).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTS));

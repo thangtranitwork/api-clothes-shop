@@ -1,6 +1,14 @@
 package com.clothes.noc.service;
 
-import io.jsonwebtoken.*;
+import com.clothes.noc.entity.LoggedOutToken;
+import com.clothes.noc.entity.User;
+import com.clothes.noc.exception.AppException;
+import com.clothes.noc.exception.ErrorCode;
+import com.clothes.noc.repository.LoggedOutTokenRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,17 +17,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
-import com.clothes.noc.entity.LoggedOutToken;
-import com.clothes.noc.entity.User;
-import com.clothes.noc.exception.AppException;
-import com.clothes.noc.exception.ErrorCode;
-import com.clothes.noc.repository.LoggedOutTokenRepository;
 
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -44,10 +46,6 @@ public class JwtUtil {
         return createJwtToken(user, isRefreshToken, jit);
     }
 
-    public String generateToken(User user, boolean isRefreshToken) {
-        return generateToken(user, isRefreshToken, UUID.randomUUID().toString());
-    }
-
     private String createJwtToken(User user, boolean isRefreshToken, String jit) {
         int duration = !isRefreshToken ? accessTokenDuration : refreshTokenDuration;
         ChronoUnit unit = !isRefreshToken ? ChronoUnit.MINUTES : ChronoUnit.DAYS;
@@ -55,6 +53,7 @@ public class JwtUtil {
         Instant now = Instant.now();
 
         return Jwts.builder()
+                .setHeaderParam("typ", "JWT")
                 .setIssuer("stu-e-learning")
                 .setSubject(String.valueOf(user.getId()))
                 .setIssuedAt(Date.from(now))

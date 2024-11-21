@@ -19,6 +19,5 @@ public class VerifyCode {
     @JoinColumn(name = "user_id", nullable = false)
     User user;
     Date expiryTime;
-    @Enumerated(EnumType.STRING)
-    VerifyAction verifyAction;
+    boolean verified;
 }
