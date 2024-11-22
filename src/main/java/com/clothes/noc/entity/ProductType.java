@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -12,16 +12,16 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class VerifyCode {
+public class ProductType {
     @Id
-    String code;
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
+    @Column(nullable = false)
+    String type;
+    @Column(nullable = false)
+    String subtype;
+
+    @OneToMany(mappedBy = "type", cascade = CascadeType.ALL)
     @ToString.Exclude
-    User user;
-    @Column(nullable = false)
-    Date expiryTime;
-    @Builder.Default
-    @Column(nullable = false)
-    boolean verified = false;
+    List<Product> products;
 }

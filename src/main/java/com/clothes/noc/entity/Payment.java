@@ -12,16 +12,18 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class VerifyCode {
+public class Payment {
     @Id
-    String code;
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
-    User user;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    Date expiryTime;
     @Builder.Default
+    PaymentType type = PaymentType.CASH;
     @Column(nullable = false)
-    boolean verified = false;
+    Date payTime;
+    @OneToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    @ToString.Exclude
+    Order order;
 }
