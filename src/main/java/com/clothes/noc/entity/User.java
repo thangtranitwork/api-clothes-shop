@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,20 +18,37 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+    @Column(nullable = false)
     String firstname;
+    @Column(nullable = false)
     String lastname;
+    @Column(nullable = false)
     String email;
     String password;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @Builder.Default
     Role role = Role.USER;
     @Enumerated(EnumType.STRING)
-    Platform platform;
-    boolean isVerified;
+    @Column(nullable = false)
+    @Builder.Default
+    Platform platform = Platform.APP;
+    @Builder.Default
+    @Column(nullable = false)
+    boolean isVerified = false;
     boolean accountLocked;
-    int failedAttempts;
+    @Column(nullable = false)
+    @Builder.Default
+    int failedAttempts = 0;
     LocalDateTime lockoutTime;
+
     @OneToOne(mappedBy = "user")
     @ToString.Exclude
     VerifyCode verifyCode;
+    @OneToOne(mappedBy = "user")
+    @ToString.Exclude
+    Cart cart;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    List<Order> orders;
 }
