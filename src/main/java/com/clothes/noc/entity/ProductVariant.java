@@ -12,6 +12,12 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "unique_product_color_size",
+                        columnNames = {"product_id", "size_id", "color_code"})
+        }
+)
 public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,7 +40,7 @@ public class ProductVariant {
     @ToString.Exclude
     Size size;
     @ManyToOne
-    @JoinColumn(name = "color_id", nullable = false)
+    @JoinColumn(name = "color_code", nullable = false)
     @ToString.Exclude
     Color color;
 }

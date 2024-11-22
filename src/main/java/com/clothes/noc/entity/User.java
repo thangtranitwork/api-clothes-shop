@@ -13,7 +13,9 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "usr")
+@Table(name = "usr",
+        uniqueConstraints = {@UniqueConstraint(name = "unique_email_platform", columnNames = {"email", "platform"})}
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
