@@ -16,7 +16,7 @@ public class Color {
     @Id
     @Column(columnDefinition = "char(7)")
     String code;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     String name;
     @OneToMany(mappedBy = "color", cascade = CascadeType.ALL)
     @ToString.Exclude

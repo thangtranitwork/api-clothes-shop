@@ -47,6 +47,7 @@ public class SecurityConfig {
                     "/users/{id}/**",
                     "/update-password/**",
                     "/forgot-password/**",
+                    "/products/**"
             };
 
 

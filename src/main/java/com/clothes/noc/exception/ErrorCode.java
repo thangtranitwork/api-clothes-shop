@@ -24,6 +24,9 @@ public enum ErrorCode {
     ACCESS_DENIED(403, "Access denied to view or modify this resource", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     NO_RESOURCE_FOUND(404, "Resource not found", HttpStatus.NOT_FOUND),
+
+    //Product
+    PRODUCT_NOT_EXIST(405, "Product does not exist", HttpStatus.NOT_FOUND),
     // Uncategorized errors
     UNCATEGORIZED_ERROR(1000, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
