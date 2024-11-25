@@ -30,7 +30,7 @@ public class ProductController {
             @RequestParam(required = false) String subtype,
             @RequestParam(required = false) List<String> colors,
             @RequestParam(required = false) List<String> sizes,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int pageSize
     ) {
         SearchProductRequest request = SearchProductRequest.builder()
@@ -44,28 +44,35 @@ public class ProductController {
                 .build();
 
         return ApiResponse.<Page<ProductResponse>>builder()
-                .body(productService.search(request, page, pageSize))
+                .body(productService.search(request, page - 1, pageSize))
                 .build();
     }
 
-    @GetMapping("/type/{type}")
+    @GetMapping("/colors_sizes")
+    ApiResponse<ColorsAndSizeResponse> getColorsAndSizes() {
+        return ApiResponse.<ColorsAndSizeResponse>builder()
+                .body(productService.getColorsAndSizes())
+                .build();
+    }
+
+    @GetMapping("/colors_sizes/type/{type}")
     ApiResponse<ColorsAndSizeResponse> getColorsAndSizesOfAType(@PathVariable String type) {
         return ApiResponse.<ColorsAndSizeResponse>builder()
                 .body(productService.getColorsAndSizesOfAType(type))
                 .build();
     }
 
-    @GetMapping("/subtype/{subtype}")
+    @GetMapping("/colors_sizes/subtype/{subtype}")
     ApiResponse<ColorsAndSizeResponse> getColorsAndSizesOfASubtype(@PathVariable String subtype) {
         return ApiResponse.<ColorsAndSizeResponse>builder()
                 .body(productService.getColorsAndSizesOfASubtype(subtype))
                 .build();
     }
 
-    @GetMapping("{id}")
-    ApiResponse<ProductWithVariantResponse> getProduct(@PathVariable String id) {
+    @GetMapping("{path}")
+    ApiResponse<ProductWithVariantResponse> getProduct(@PathVariable String path) {
         return ApiResponse.<ProductWithVariantResponse>builder()
-                .body(productService.get(id))
+                .body(productService.getByPath(path))
                 .build();
     }
 }

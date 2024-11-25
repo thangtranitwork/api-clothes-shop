@@ -6,33 +6,40 @@ import com.clothes.noc.entity.Product;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.mapper.ProductMapper;
+import com.clothes.noc.repository.ColorRepository;
 import com.clothes.noc.repository.ProductRepository;
+import com.clothes.noc.repository.SizeRepository;
 import com.clothes.noc.repository.spec.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final SizeRepository sizeRepository;
+    private final ColorRepository colorRepository;
     private final ProductMapper productMapper;
 
-    public ProductWithVariantResponse get(String id) {
-        Product product = productRepository.findById(id)
+    public ProductWithVariantResponse getByPath(String path) {
+        Product product = productRepository.findByPath(path)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST));
         ProductFullResponse productFullResponse = productMapper.toProductFullResponse(product);
         productFullResponse.setColors(getColorResponses(productFullResponse.getId()));
         productFullResponse.setSizes(getSizeResponses(productFullResponse.getId()));
+        Set<String> imgs = new HashSet<>(Arrays.asList(product.getImg(), product.getImg()));
+        product.getProductVariants().forEach(productVariant -> imgs.add(productVariant.getImg()));
         return ProductWithVariantResponse.builder()
                 .product(productFullResponse)
                 .variants(product.getProductVariants()
                         .stream()
                         .map(productMapper::toProductVariantResponse)
                         .toList())
+                .imgs(imgs.stream().toList())
                 .build();
     }
 
