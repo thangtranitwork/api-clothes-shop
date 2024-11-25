@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 @Builder
 public class ColorsAndSizeResponse {
-    List<ColorWithQuantityResponse> colors;
-    List<SizeWithQuantityResponse> sizes;
+    List<ColorResponse> colors;
+    List<SizeResponse> sizes;
 }

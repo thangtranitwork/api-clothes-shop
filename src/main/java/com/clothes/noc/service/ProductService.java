@@ -73,20 +73,33 @@ public class ProductService {
                 .toList();
     }
 
+    public ColorsAndSizeResponse getColorsAndSizes() {
+        return ColorsAndSizeResponse.builder()
+                .colors(colorRepository.findAll().stream()
+                        .map(color -> ColorResponse.builder()
+                                .code(color.getCode())
+                                .name(color.getName())
+                                .build()).toList())
+                .sizes(sizeRepository.findAll().stream()
+                        .map(size -> SizeResponse.builder()
+                                .id(size.getId())
+                                .name(size.getName())
+                                .build()).toList())
+                .build();
+    }
+
     public ColorsAndSizeResponse getColorsAndSizesOfAType(String type) {
         return ColorsAndSizeResponse.builder()
                 .colors(productRepository.findAllColorsOfAType(type).stream()
-                        .map(color -> ColorWithQuantityResponse.builder()
+                        .map(color -> ColorResponse.builder()
                                 .code(color.getCode())
                                 .name(color.getName())
-                                .quantity(color.getProductVariants() != null ? color.getProductVariants().size() : 0)
                                 .build())
                         .toList())
                 .sizes(productRepository.findAllSizesOfAType(type).stream()
-                        .map(size -> SizeWithQuantityResponse.builder()
+                        .map(size -> SizeResponse.builder()
                                 .id(size.getId())
                                 .name(size.getName())
-                                .quantity(size.getProductVariants() != null ? size.getProductVariants().size() : 0)
                                 .build())
                         .toList())
                 .build();
@@ -96,17 +109,15 @@ public class ProductService {
     public ColorsAndSizeResponse getColorsAndSizesOfASubtype(String subtype) {
         return ColorsAndSizeResponse.builder()
                 .colors(productRepository.findAllColorsOfASubType(subtype).stream()
-                        .map(color -> ColorWithQuantityResponse.builder()
+                        .map(color -> ColorResponse.builder()
                                 .code(color.getCode())
                                 .name(color.getName())
-                                .quantity(color.getProductVariants() != null ? color.getProductVariants().size() : 0) // Kiểm tra null
                                 .build())
                         .toList())
                 .sizes(productRepository.findAllSizesOfASubType(subtype).stream()
-                        .map(size -> SizeWithQuantityResponse.builder()
+                        .map(size -> SizeResponse.builder()
                                 .id(size.getId())
                                 .name(size.getName())
-                                .quantity(size.getProductVariants() != null ? size.getProductVariants().size() : 0) // Kiểm tra null
                                 .build())
                         .toList())
                 .build();
