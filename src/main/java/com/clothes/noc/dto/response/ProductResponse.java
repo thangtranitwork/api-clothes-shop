@@ -1,12 +1,14 @@
 package com.clothes.noc.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Data
-@SuperBuilder
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductResponse {
     String id;
     String name;
