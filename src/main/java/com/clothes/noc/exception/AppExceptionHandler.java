@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -68,5 +69,10 @@ public class AppExceptionHandler {
                 .build();
         log.error(exception.getMessage(), exception);
         return ResponseEntity.status(ErrorCode.UNCATEGORIZED_ERROR.getStatus()).body(apiResponse);
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    private void handlerMissingRequestCookieException(MissingRequestCookieException exception) {
+
     }
 }

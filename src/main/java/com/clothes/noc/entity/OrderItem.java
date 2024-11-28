@@ -15,8 +15,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @Column(nullable = false)
-    @Builder.Default
-    int quantity = 0;
+    int quantity;
     @Column(nullable = false)
     double price;
 

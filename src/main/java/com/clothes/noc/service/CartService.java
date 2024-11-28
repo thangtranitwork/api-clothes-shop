@@ -1,6 +1,5 @@
 package com.clothes.noc.service;
 
-import com.clothes.noc.dto.request.UpdateCartItemQuantityRequest;
 import com.clothes.noc.dto.request.VariantInCartRequest;
 import com.clothes.noc.dto.response.CartResponse;
 import com.clothes.noc.entity.Cart;
@@ -65,20 +64,14 @@ public class CartService {
         return cartMapper.toCartResponse(userService.getCurrentUser().getCart());
     }
 
-    public void updateQuantity(UpdateCartItemQuantityRequest request) {
+    public void updateQuantity(VariantInCartRequest request) {
         Cart cart = userService.getCurrentUser().getCart();
 
         cart.getItems().stream()
-                .filter(item -> item.getId().equals(request.getVariantId()))
+                .filter(item -> item.getProductVariant().getId().equals(request.getVariantId()))
                 .findFirst()
                 .ifPresentOrElse(
-                        item -> {
-                            if (request.getQuantity() == 0) {
-                                cart.getItems().remove(item);
-                            } else {
-                                item.setQuantity(Math.min(request.getQuantity(), MAX_QUANTITY));
-                            }
-                        },
+                        item -> item.setQuantity(Math.min(request.getQuantity(), MAX_QUANTITY)),
                         () -> {
                             throw new AppException(ErrorCode.CART_ITEM_NOT_EXIST);
                         }
@@ -101,7 +94,12 @@ public class CartService {
                             throw new AppException(ErrorCode.CART_ITEM_NOT_EXIST);
                         }
                 );
+        cartRepository.save(cart);
+    }
 
+    public void clearCart() {
+        Cart cart = userService.getCurrentUser().getCart();
+        cart.getItems().clear();
         cartRepository.save(cart);
     }
 }

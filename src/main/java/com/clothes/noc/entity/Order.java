@@ -19,7 +19,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @Column(nullable = false)
-    Date orderTime;
+    @Builder.Default
+    Date orderTime = new Date();
     @Column(columnDefinition = "char(12)", nullable = false)
     String phoneNumber;
     @Column(nullable = false)
@@ -41,7 +42,7 @@ public class Order {
     @ToString.Exclude
     List<OrderItem> items;
 
-    @OneToOne(mappedBy = "order")
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     @ToString.Exclude
     Payment payment;
 }

@@ -1,6 +1,5 @@
 package com.clothes.noc.controller;
 
-import com.clothes.noc.dto.request.UpdateCartItemQuantityRequest;
 import com.clothes.noc.dto.request.VariantInCartRequest;
 import com.clothes.noc.dto.response.ApiResponse;
 import com.clothes.noc.dto.response.CartResponse;
@@ -32,8 +31,8 @@ public class CartController {
                 .build();
     }
 
-    @PatchMapping("/update-quantity")
-    ApiResponse<Void> updateQuantity(@RequestBody @Valid UpdateCartItemQuantityRequest request) {
+    @PutMapping("/update-quantity")
+    ApiResponse<Void> updateQuantity(@RequestBody @Valid VariantInCartRequest request) {
         cartService.updateQuantity(request);
         return ApiResponse.<Void>builder()
                 .build();

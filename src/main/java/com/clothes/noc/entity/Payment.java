@@ -20,7 +20,6 @@ public class Payment {
     @Column(nullable = false)
     @Builder.Default
     PaymentType type = PaymentType.CASH;
-    @Column(nullable = false)
     Date payTime;
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
