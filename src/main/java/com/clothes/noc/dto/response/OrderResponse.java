@@ -1,6 +1,5 @@
 package com.clothes.noc.dto.response;
 
-import com.clothes.noc.entity.OrderItem;
 import com.clothes.noc.entity.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

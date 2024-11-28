@@ -77,15 +77,12 @@ public class OrderService {
                 productVariant.setQuantity(productVariant.getQuantity() - ci.getQuantity());
                 productVariantRepository.save(productVariant);
             }
-
-            OrderItem item = OrderItem.builder()
+            return OrderItem.builder()
                     .order(order)
                     .productVariant(ci.getProductVariant())
                     .price(ci.getProductVariant().getProduct().getPrice())
                     .quantity(ci.getQuantity())
                     .build();
-
-            return item;
         }).toList();
 
         if (!invalidQuantity.isEmpty())

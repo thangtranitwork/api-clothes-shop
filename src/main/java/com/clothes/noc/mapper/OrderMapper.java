@@ -5,7 +5,6 @@ import com.clothes.noc.dto.response.OrderItemResponse;
 import com.clothes.noc.dto.response.OrderResponse;
 import com.clothes.noc.entity.Order;
 import com.clothes.noc.entity.OrderItem;
-import com.clothes.noc.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
