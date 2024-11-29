@@ -47,24 +47,8 @@ public class OrderService {
         return orderRepository.findAllByUserId(userService.getCurrentUserId(), pageable).map(orderMapper::toOrderResponse);
     }
 
-    public CreateOrderResponse createOrder(OrderRequest orderRequest) {
-        OrderResponse orderResponse = handleCreateOrder(orderRequest);
-        sendOrderEmail(orderResponse);
-        return CreateOrderResponse.builder()
-                .id(orderResponse.getId())
-                .payUrl(orderResponse.getPayUrl())
-                .build();
-    }
-
-    private void sendOrderEmail(OrderResponse orderResponse) {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("order", orderResponse);
-        variables.put("orderLink", String.format("%s/order/%s", feOrigin, orderResponse.getId()));
-        emailService.sendMail(userService.getCurrentUser().getEmail(), ORDER_SUBJECT, variables, ORDER_TEMPLATE);
-    }
-
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    protected OrderResponse handleCreateOrder(OrderRequest orderRequest) {
+    public CreateOrderResponse createOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
         List<OrderItem> orderItems = mapCartItemToOrderItem(order);
         order.setItems(orderItems);
@@ -79,7 +63,17 @@ public class OrderService {
             orderResponse.setPayUrl("abc.com");
             //TODO: call VNPAY service here
         }
-        return orderResponse;
+        sendOrderEmail(orderResponse);
+        return CreateOrderResponse.builder()
+                .id(orderResponse.getId())
+                .payUrl(orderResponse.getPayUrl())
+                .build();
+    }
+    private void sendOrderEmail(OrderResponse orderResponse) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("order", orderResponse);
+        variables.put("orderLink", String.format("%s/order/%s", feOrigin, orderResponse.getId()));
+        emailService.sendMail(userService.getCurrentUser().getEmail(), ORDER_SUBJECT, variables, ORDER_TEMPLATE);
     }
 
     private static Payment getPayment(OrderRequest orderRequest) {
