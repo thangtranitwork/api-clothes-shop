@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.util.Date;
 
 @Data
+@EqualsAndHashCode(exclude = "order")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -2,6 +2,7 @@ package com.clothes.noc.controller;
 
 import com.clothes.noc.dto.request.OrderRequest;
 import com.clothes.noc.dto.response.ApiResponse;
+import com.clothes.noc.dto.response.CreateOrderResponse;
 import com.clothes.noc.dto.response.OrderResponse;
 import com.clothes.noc.service.OrderService;
 import lombok.AccessLevel;
@@ -18,6 +19,13 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     final OrderService orderService;
 
+    @GetMapping("/{id}")
+    public ApiResponse<OrderResponse> getOrder(@PathVariable String id) {
+        return ApiResponse.<OrderResponse>builder()
+                .body(orderService.getOrder(id))
+                .build();
+    }
+
     @GetMapping("/history")
     ApiResponse<Page<OrderResponse>> getHistory(Pageable pageable) {
         return ApiResponse.<Page<OrderResponse>>builder()
@@ -26,8 +34,8 @@ public class OrderController {
     }
 
     @PostMapping("/new")
-    ApiResponse<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
-        return ApiResponse.<OrderResponse>builder()
+    ApiResponse<CreateOrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
+        return ApiResponse.<CreateOrderResponse>builder()
                 .body(orderService.createOrder(orderRequest))
                 .build();
     }

@@ -35,7 +35,7 @@ public class UpdatePasswordService {
     @Value("${FE_ORIGIN}")
     private String feOrigin;
     static final String VERIFY_EMAIL_TEMPLATE = "verify-email";
-    static final String VERIFY_EMAIL_SUBJECT = "Xác minh đổi mật khẩu";
+    static final String VERIFY_EMAIL_SUBJECT = "Verify for update password";
 
 
     public void sendMail(String email) {

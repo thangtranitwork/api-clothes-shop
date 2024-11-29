@@ -20,5 +20,5 @@ public class OrderResponse {
     OrderStatus status;
     List<OrderItemResponse> items;
     PaymentResponse payment;
-    String payURL;
+    String payUrl;
 }

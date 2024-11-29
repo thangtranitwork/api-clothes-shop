@@ -47,7 +47,7 @@ public class RegisterService {
     String feOrigin;
 
     static final String VERIFY_EMAIL_TEMPLATE = "verify-email";
-    static final String VERIFY_EMAIL_SUBJECT = "Xác minh email";
+    static final String VERIFY_EMAIL_SUBJECT = "Verify your email";
 
     public void register(RegisterRequest request) {
         validateUserDoesNotExist(request.getEmail(), request.getPlatform());

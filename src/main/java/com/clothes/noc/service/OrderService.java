@@ -1,6 +1,7 @@
 package com.clothes.noc.service;
 
 import com.clothes.noc.dto.request.OrderRequest;
+import com.clothes.noc.dto.response.CreateOrderResponse;
 import com.clothes.noc.dto.response.OrderResponse;
 import com.clothes.noc.entity.*;
 import com.clothes.noc.exception.AppException;
@@ -10,6 +11,7 @@ import com.clothes.noc.repository.OrderRepository;
 import com.clothes.noc.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,16 +28,43 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final CartService cartService;
     private final ProductVariantRepository productVariantRepository;
-
+    private final EmailService emailService;
     @NonFinal
     private final List<OrderStatus> canCancelStatus = new ArrayList<>(Arrays.asList(OrderStatus.NEW, OrderStatus.PACKING));
+    @NonFinal
+    private final String ORDER_TEMPLATE = "order-email";
+    @NonFinal
+    private final String ORDER_SUBJECT = "Order";
+    @Value("${FE_ORIGIN}")
+    private String feOrigin;
+
+    public OrderResponse getOrder(String id) {
+        return orderMapper.toOrderResponse(orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXIST)));
+    }
 
     public Page<OrderResponse> getHistory(Pageable pageable) {
         return orderRepository.findAllByUserId(userService.getCurrentUserId(), pageable).map(orderMapper::toOrderResponse);
     }
 
+    public CreateOrderResponse createOrder(OrderRequest orderRequest) {
+        OrderResponse orderResponse = handleCreateOrder(orderRequest);
+        sendOrderEmail(orderResponse);
+        return CreateOrderResponse.builder()
+                .id(orderResponse.getId())
+                .payUrl(orderResponse.getPayUrl())
+                .build();
+    }
+
+    private void sendOrderEmail(OrderResponse orderResponse) {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("order", orderResponse);
+        variables.put("orderLink", String.format("%s/order/%s", feOrigin, orderResponse.getId()));
+        emailService.sendMail(userService.getCurrentUser().getEmail(), ORDER_SUBJECT, variables, ORDER_TEMPLATE);
+    }
+
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    protected OrderResponse handleCreateOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
         List<OrderItem> orderItems = mapCartItemToOrderItem(order);
         order.setItems(orderItems);
@@ -45,15 +74,9 @@ public class OrderService {
         order.setPayment(payment);
         orderRepository.save(order);
         cartService.clearCart();
-        try {
-            Thread.sleep(25000);
-        } catch (InterruptedException e) {
-            // Xử lý ngoại lệ nếu luồng bị gián đoạn
-            e.printStackTrace();
-        }
         OrderResponse orderResponse = orderMapper.toOrderResponse(order);
         if (payment.getType().equals(PaymentType.VNPAY)) {
-            orderResponse.setPayURL("abc.com");
+            orderResponse.setPayUrl("abc.com");
             //TODO: call VNPAY service here
         }
         return orderResponse;
@@ -116,5 +139,6 @@ public class OrderService {
                         });
 
     }
+
 
 }

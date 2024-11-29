@@ -15,6 +15,8 @@ import com.clothes.noc.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -96,11 +98,11 @@ public class CartService {
                 );
         cartRepository.save(cart);
     }
-
     public void clearCart() {
         Cart cart = userService.getCurrentUser().getCart();
         cart.getItems().clear();
         cartRepository.save(cart);
     }
+
 }
 

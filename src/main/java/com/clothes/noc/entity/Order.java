@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "payment")
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
