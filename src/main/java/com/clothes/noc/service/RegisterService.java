@@ -3,12 +3,14 @@ package com.clothes.noc.service;
 import com.clothes.noc.dto.request.OAuth2RegisterRequest;
 import com.clothes.noc.dto.request.RegisterRequest;
 import com.clothes.noc.dto.response.AuthenticationResponse;
+import com.clothes.noc.entity.Cart;
 import com.clothes.noc.entity.Platform;
 import com.clothes.noc.entity.User;
 import com.clothes.noc.entity.VerifyCode;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.mapper.UserMapper;
+import com.clothes.noc.repository.CartRepository;
 import com.clothes.noc.repository.UserRepository;
 import com.clothes.noc.repository.VerifyCodeRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,9 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public class RegisterService {
     final UserMapper userMapper;
     final EmailService emailService;
     final AuthenticationService authenticationService;
-
+    final CartRepository cartRepository;
     @Value("${verify.email.duration}")
     int verifyEmailDuration;
 
@@ -45,7 +45,7 @@ public class RegisterService {
     String feOrigin;
 
     static final String VERIFY_EMAIL_TEMPLATE = "verify-email";
-    static final String VERIFY_EMAIL_SUBJECT = "Xác minh email";
+    static final String VERIFY_EMAIL_SUBJECT = "Verify your email";
 
     public void register(RegisterRequest request) {
         validateUserDoesNotExist(request.getEmail(), request.getPlatform());
@@ -56,9 +56,13 @@ public class RegisterService {
 
         User user = userMapper.toUser(request);
         userRepository.save(user);
-
+        createCartForNewUser(user);
         VerifyCode verifyCode = createAndSaveVerifyCode(user);
         sendVerificationEmail(user, verifyCode);
+    }
+
+    private void createCartForNewUser(User user) {
+        cartRepository.save(Cart.builder().user(user).build());
     }
 
     private void deleteOldVerifyCode(User user) {
@@ -72,6 +76,7 @@ public class RegisterService {
         validateUserDoesNotExist(request.getEmail(), request.getPlatform());
         User user = userMapper.toUser(request);
         userRepository.save(user);
+        createCartForNewUser(user);
     }
 
     private void validateUserDoesNotExist(String email, String platform) {
@@ -85,7 +90,7 @@ public class RegisterService {
     }
 
     public VerifyCode createAndSaveVerifyCode(User user) {
-        Date expiryTime = Date.from(Instant.now().plus(verifyEmailDuration, ChronoUnit.MINUTES));
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(verifyEmailDuration);
         VerifyCode verifyCode = VerifyCode.builder()
                 .code(UUID.randomUUID().toString())
                 .user(user)
@@ -113,7 +118,7 @@ public class RegisterService {
         VerifyCode verifyCode = verifyCodeRepository.findById(code)
                 .orElseThrow(() -> new AppException(ErrorCode.VERIFY_CODE_DOES_NOT_EXIST));
 
-        if (verifyCode.getExpiryTime().before(new Date())) {
+        if (verifyCode.getExpiryTime().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.VERIFY_CODE_TIMEOUT);
         }
 

@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = "user")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,7 +22,8 @@ public class Cart {
     @ToString.Exclude
     User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     List<CartItem> items;
+
 }

@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "payment")
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
@@ -19,7 +20,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @Column(nullable = false)
-    Date orderTime;
+    @Builder.Default
+    LocalDateTime orderTime = LocalDateTime.now();
     @Column(columnDefinition = "char(12)", nullable = false)
     String phoneNumber;
     @Column(nullable = false)
@@ -41,7 +43,7 @@ public class Order {
     @ToString.Exclude
     List<OrderItem> items;
 
-    @OneToOne(mappedBy = "order")
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     @ToString.Exclude
     Payment payment;
 }

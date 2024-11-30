@@ -47,7 +47,8 @@ public class SecurityConfig {
                     "/users/{id}/**",
                     "/update-password/**",
                     "/forgot-password/**",
-                    "/products/**"
+                    "/products/**",
+                    "/orders/payment-return"
             };
 
 
@@ -70,9 +71,9 @@ public class SecurityConfig {
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
-                .oauth2Login(oauth2Login -> oauth2Login
-                        .successHandler(customOAuth2LoginSuccessHandler())
-                        .failureHandler(customOAuth2LoginFailureHandler()))
+//                .oauth2Login(oauth2Login -> oauth2Login
+//                        .successHandler(customOAuth2LoginSuccessHandler())
+//                        .failureHandler(customOAuth2LoginFailureHandler()))
                 .build();
     }
 

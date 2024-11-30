@@ -26,7 +26,17 @@ public enum ErrorCode {
     NO_RESOURCE_FOUND(404, "Resource not found", HttpStatus.NOT_FOUND),
 
     //Product
-    PRODUCT_NOT_EXIST(405, "Product does not exist", HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_EXIST(501, "Product does not exist", HttpStatus.NOT_FOUND),
+    PRODUCT_VARIANT_NOT_EXIST(502, "Product variant does not exist", HttpStatus.NOT_FOUND),
+
+    INVALID_QUANTITY(601, "Quantity must between 1 and 10", HttpStatus.BAD_REQUEST),
+    QUANTITY_OF_PRODUCT_NOT_MEETING_REQUEST(602, "Quantity of product does not meet request", HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_EXIST(603, "Cart item does not exist", HttpStatus.NOT_FOUND),
+    CART_IS_EMPTY(604, "Cart is empty", HttpStatus.BAD_REQUEST),
+    SOME_ITEMS_HAVE_INVALID_QUANTITY(605, "Some items have invalid quantity", HttpStatus.BAD_REQUEST),
+    CAN_NOT_CANCEL_THIS_ORDER(606, "Can not cancel this order", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_EXIST(607, "Order does not exist", HttpStatus.NOT_FOUND),
+    CAN_NOT_PAY_THIS_ORDER(608, "Can not pay this order", HttpStatus.BAD_REQUEST),
     // Uncategorized errors
     UNCATEGORIZED_ERROR(1000, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     ;

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -20,7 +20,7 @@ public class VerifyCode {
     @ToString.Exclude
     User user;
     @Column(nullable = false)
-    Date expiryTime;
+    LocalDateTime expiryTime;
     @Builder.Default
     @Column(nullable = false)
     boolean verified = false;

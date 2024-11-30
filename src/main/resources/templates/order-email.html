@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .order-details {
+            margin-bottom: 20px;
+        }
+        .items {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .items th, .items td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .items th {
+            background-color: #f4f4f4;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .order-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <strong>Order Confirmation</strong>
+    </div>
+    <div class="order-details">
+        <p><strong>Order ID:</strong> <span th:text="${order.id}"></span></p>
+        <p><strong>Order Time:</strong> <span th:text="${order.orderTime}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${order.status}"></span></p>
+        <p><strong>Phone Number:</strong> <span th:text="${order.phoneNumber}"></span></p>
+        <p><strong>Delivery Address:</strong> <span th:text="${order.address}"></span></p>
+        <p><strong>Note:</strong> <span th:text="${order.note}"></span></p>
+    </div>
+    <div class="order-items">
+        <h3>Order Items</h3>
+        <table class="items">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Variant</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${order.items}">
+                <td>
+                    <p><strong th:text="${item.product.name}"></strong></p>
+                    <p>Type: <span th:text="${item.product.type.type}"></span> - <span th:text="${item.product.type.subtype}"></span></p>
+                    <p>Path: <span th:text="${item.product.path}"></span></p>
+                </td>
+                <td>
+                    <p>Size: <span th:text="${item.variant.size.name}"></span></p>
+                    <p>Color: <span th:style="'color:' + ${item.variant.color.code}" th:text="${item.variant.color.name}"></span></p>
+                </td>
+                <td th:text="${item.quantity}"></td>
+                <td th:text="${item.price} + ' VND'"></td>
+                <td th:text="${item.quantity * item.price} + ' VND'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="order-payment">
+        <p><strong>Payment Method:</strong> <span th:text="${order.payment.type}"></span></p>
+        <p th:if="${order.payment.payTime != null}"><strong>Payment Time:</strong> <span th:text="${order.payment.payTime}"></span></p>
+    </div>
+    <div class="footer">
+        <p>View your order details online: <a th:href="${orderLink}" class="order-link">Click here</a></p>
+        <p>Thank you for your purchase!</p>
+    </div>
+</div>
+</body>
+</html>

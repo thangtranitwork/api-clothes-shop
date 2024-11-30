@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +32,7 @@ public class UpdatePasswordService {
     @Value("${FE_ORIGIN}")
     private String feOrigin;
     static final String VERIFY_EMAIL_TEMPLATE = "verify-email";
-    static final String VERIFY_EMAIL_SUBJECT = "Xác minh đổi mật khẩu";
+    static final String VERIFY_EMAIL_SUBJECT = "Verify for update password";
 
 
     public void sendMail(String email) {
@@ -54,7 +51,7 @@ public class UpdatePasswordService {
     }
 
     public VerifyCode createAndSaveVerifyCode(User user) {
-        Date expiryTime = Date.from(Instant.now().plus(verifyEmailDuration, ChronoUnit.MINUTES));
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(verifyEmailDuration);
         VerifyCode verifyCode = VerifyCode.builder()
                 .code(UUID.randomUUID().toString())
                 .user(user)
@@ -66,7 +63,7 @@ public class UpdatePasswordService {
 
     public void sendVerificationEmail(User user, VerifyCode verifyCode) {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("expiryDate", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(verifyCode.getExpiryTime()));
+        variables.put("expiryDate", verifyCode.getExpiryTime());
         variables.put("title", VERIFY_EMAIL_SUBJECT);
         variables.put("verificationLink", String.format("%s/account/?tab=change-password&email=%s&step=2&code=%s", feOrigin, user.getEmail(), verifyCode.getCode()));
         emailService.sendMail(user.getEmail(), VERIFY_EMAIL_SUBJECT, variables, VERIFY_EMAIL_TEMPLATE);
@@ -87,7 +84,7 @@ public class UpdatePasswordService {
             throw new AppException(ErrorCode.VERIFY_CODE_INVALID);
         }
 
-        if (verifyCode.getExpiryTime().before(new Date())) {
+        if (verifyCode.getExpiryTime().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.VERIFY_CODE_TIMEOUT);
         }
 

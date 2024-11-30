@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(exclude = "order")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,8 +21,7 @@ public class Payment {
     @Column(nullable = false)
     @Builder.Default
     PaymentType type = PaymentType.CASH;
-    @Column(nullable = false)
-    Date payTime;
+    LocalDateTime payTime;
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
     @ToString.Exclude
