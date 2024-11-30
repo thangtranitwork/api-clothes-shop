@@ -15,9 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +53,7 @@ public class UpdatePasswordService {
     }
 
     public VerifyCode createAndSaveVerifyCode(User user) {
-        Date expiryTime = Date.from(Instant.now().plus(verifyEmailDuration, ChronoUnit.MINUTES));
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(verifyEmailDuration);
         VerifyCode verifyCode = VerifyCode.builder()
                 .code(UUID.randomUUID().toString())
                 .user(user)
@@ -87,7 +86,7 @@ public class UpdatePasswordService {
             throw new AppException(ErrorCode.VERIFY_CODE_INVALID);
         }
 
-        if (verifyCode.getExpiryTime().before(new Date())) {
+        if (verifyCode.getExpiryTime().isBefore(LocalDateTime.now())) {
             throw new AppException(ErrorCode.VERIFY_CODE_TIMEOUT);
         }
 

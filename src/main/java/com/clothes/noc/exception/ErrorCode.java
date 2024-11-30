@@ -36,6 +36,7 @@ public enum ErrorCode {
     SOME_ITEMS_HAVE_INVALID_QUANTITY(605, "Some items have invalid quantity", HttpStatus.BAD_REQUEST),
     CAN_NOT_CANCEL_THIS_ORDER(606, "Can not cancel this order", HttpStatus.BAD_REQUEST),
     ORDER_NOT_EXIST(607, "Order does not exist", HttpStatus.NOT_FOUND),
+    CAN_NOT_PAY_THIS_ORDER(608, "Can not pay this order", HttpStatus.BAD_REQUEST),
     // Uncategorized errors
     UNCATEGORIZED_ERROR(1000, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
     ;

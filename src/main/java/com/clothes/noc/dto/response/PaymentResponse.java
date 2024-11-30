@@ -4,12 +4,12 @@ import com.clothes.noc.entity.PaymentType;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class PaymentResponse {
     String id;
     PaymentType type;
-    Date payTime;
+    LocalDateTime payTime;
 }

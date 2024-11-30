@@ -1,6 +1,7 @@
 package com.clothes.noc.service;
 
 import com.clothes.noc.dto.request.OrderRequest;
+import com.clothes.noc.dto.request.SearchOrderRequest;
 import com.clothes.noc.dto.response.CreateOrderResponse;
 import com.clothes.noc.dto.response.OrderResponse;
 import com.clothes.noc.entity.*;
@@ -9,6 +10,9 @@ import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.mapper.OrderMapper;
 import com.clothes.noc.repository.OrderRepository;
 import com.clothes.noc.repository.ProductVariantRepository;
+import com.clothes.noc.repository.spec.OrderSpecifications;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -29,6 +36,8 @@ public class OrderService {
     private final CartService cartService;
     private final ProductVariantRepository productVariantRepository;
     private final EmailService emailService;
+    private final VNPayService vnPayService;
+
     @NonFinal
     private final List<OrderStatus> canCancelStatus = new ArrayList<>(Arrays.asList(OrderStatus.NEW, OrderStatus.PACKING));
     @NonFinal
@@ -43,12 +52,13 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXIST)));
     }
 
-    public Page<OrderResponse> getHistory(Pageable pageable) {
-        return orderRepository.findAllByUserId(userService.getCurrentUserId(), pageable).map(orderMapper::toOrderResponse);
+    public Page<OrderResponse> getHistory(SearchOrderRequest request, Pageable pageable) {
+        return orderRepository.findAll(OrderSpecifications.multipleFieldsSearch(userService.getCurrentUserId(), request), pageable)
+                .map(orderMapper::toOrderResponse);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public CreateOrderResponse createOrder(OrderRequest orderRequest) {
+    public CreateOrderResponse createOrder(OrderRequest orderRequest, HttpServletRequest request) {
         Order order = orderMapper.toOrder(orderRequest);
         List<OrderItem> orderItems = mapCartItemToOrderItem(order);
         order.setItems(orderItems);
@@ -60,8 +70,10 @@ public class OrderService {
         cartService.clearCart();
         OrderResponse orderResponse = orderMapper.toOrderResponse(order);
         if (payment.getType().equals(PaymentType.VNPAY)) {
-            orderResponse.setPayUrl("abc.com");
-            //TODO: call VNPAY service here
+            double total = order.getItems().stream()
+                    .mapToDouble(item ->
+                            item.getPrice() * item.getQuantity()).sum();
+            orderResponse.setPayUrl(createVNPAYOrderUrl(orderResponse.getId(), (int) total, request));
         }
         sendOrderEmail(orderResponse);
         return CreateOrderResponse.builder()
@@ -69,6 +81,14 @@ public class OrderService {
                 .payUrl(orderResponse.getPayUrl())
                 .build();
     }
+
+    public String createVNPAYOrderUrl(String orderId, int total, HttpServletRequest request) {
+
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+
+        return vnPayService.createOrder(request, total, orderId, baseUrl);
+    }
+
     private void sendOrderEmail(OrderResponse orderResponse) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("order", orderResponse);
@@ -134,5 +154,46 @@ public class OrderService {
 
     }
 
+    @Transactional
+    public void handlePayment(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        int paymentStatus = vnPayService.orderReturn(req);
+        String orderId = req.getParameter("vnp_OrderInfo");
+        String paymentTime = req.getParameter("vnp_PayDate");
+        String transactionId = req.getParameter("vnp_TransactionNo");//cần lưu vào db để truy xuất
 
+        if (paymentStatus == 1) {
+            orderRepository.findById(orderId).ifPresent((order) -> {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+                LocalDateTime localDateTime = LocalDateTime.parse(paymentTime, formatter);
+                order.getPayment().setPayTime(localDateTime);
+                orderRepository.save(order);
+                try {
+                    res.sendRedirect(String.format("%s/order/%s/?payment-status=success", feOrigin, orderId));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        } else {
+            res.sendRedirect(String.format("%s/order/%s/?payment-status=fail", feOrigin, orderId));
+        }
+    }
+
+    public String payAgain(String id, HttpServletRequest req) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXIST));
+
+        if (!userService.getCurrentUser().getId().equals(order.getUser().getId())) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
+
+        if (!order.getPayment().getType().equals(PaymentType.VNPAY) || order.getPayment().getPayTime() != null) {
+            throw new AppException(ErrorCode.CAN_NOT_PAY_THIS_ORDER);
+        }
+
+        double total = order.getItems().stream()
+                .mapToDouble(item ->
+                        item.getPrice() * item.getQuantity()).sum();
+        return createVNPAYOrderUrl(order.getId(), (int) total, req);
+    }
 }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,7 +21,7 @@ public class Order {
     String id;
     @Column(nullable = false)
     @Builder.Default
-    Date orderTime = new Date();
+    LocalDateTime orderTime = LocalDateTime.now();
     @Column(columnDefinition = "char(12)", nullable = false)
     String phoneNumber;
     @Column(nullable = false)

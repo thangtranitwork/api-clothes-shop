@@ -1,10 +1,14 @@
 package com.clothes.noc.controller;
 
 import com.clothes.noc.dto.request.OrderRequest;
+import com.clothes.noc.dto.request.SearchOrderRequest;
 import com.clothes.noc.dto.response.ApiResponse;
 import com.clothes.noc.dto.response.CreateOrderResponse;
 import com.clothes.noc.dto.response.OrderResponse;
+import com.clothes.noc.entity.OrderStatus;
 import com.clothes.noc.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,12 +16,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderController {
     final OrderService orderService;
+
 
     @GetMapping("/{id}")
     public ApiResponse<OrderResponse> getOrder(@PathVariable String id) {
@@ -27,16 +35,40 @@ public class OrderController {
     }
 
     @GetMapping("/history")
-    ApiResponse<Page<OrderResponse>> getHistory(Pageable pageable) {
+    ApiResponse<Page<OrderResponse>> getHistory(
+            Pageable pageable,
+            @RequestParam(required = false) String id,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to,
+            @RequestParam(required = false) String status
+            ) {
+        SearchOrderRequest request = SearchOrderRequest.builder()
+                .id(id)
+                .from(from)
+                .to(to)
+                .status(status != null ? OrderStatus.valueOf(status) : null)
+                .build();
         return ApiResponse.<Page<OrderResponse>>builder()
-                .body(orderService.getHistory(pageable))
+                .body(orderService.getHistory(request, pageable))
+                .build();
+    }
+
+    @GetMapping("/payment-return")
+    void paymentReturn(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        orderService.handlePayment(req, resp);
+    }
+
+    @GetMapping("/pay-again/{id}")
+    ApiResponse<String> payAgainOrder(@PathVariable String id, HttpServletRequest request) {
+        return ApiResponse.<String>builder()
+                .body(orderService.payAgain(id, request))
                 .build();
     }
 
     @PostMapping("/new")
-    ApiResponse<CreateOrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
+    ApiResponse<CreateOrderResponse> createOrder(@RequestBody OrderRequest orderRequest, HttpServletRequest httpServletRequest) {
         return ApiResponse.<CreateOrderResponse>builder()
-                .body(orderService.createOrder(orderRequest))
+                .body(orderService.createOrder(orderRequest, httpServletRequest))
                 .build();
     }
 
@@ -45,4 +77,5 @@ public class OrderController {
         orderService.cancelOrder(id);
         return ApiResponse.<OrderResponse>builder().build();
     }
+
 }
