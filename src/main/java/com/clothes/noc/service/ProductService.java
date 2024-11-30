@@ -43,10 +43,11 @@ public class ProductService {
                 .build();
     }
 
-    public Page<ProductResponse> search(SearchProductRequest request, int page, int pageSize) {
-        // Gắn danh sách màu vào product response
+    public Page<ProductResponse> search(SearchProductRequest request, int page, int size) {
+        if(page < 0) page = 0;
+        if(size < 0) size = 10;
         return productRepository
-                .findAll(ProductSpecifications.multipleFieldsSearch(request), PageRequest.of(page, pageSize))
+                .findAll(ProductSpecifications.multipleFieldsSearch(request), PageRequest.of(page, size))
                 .map(productMapper::toProductResponse)
                 .map(product -> {
                     // Gắn danh sách màu vào product response

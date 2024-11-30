@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -65,7 +63,7 @@ public class UpdatePasswordService {
 
     public void sendVerificationEmail(User user, VerifyCode verifyCode) {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("expiryDate", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(verifyCode.getExpiryTime()));
+        variables.put("expiryDate", verifyCode.getExpiryTime());
         variables.put("title", VERIFY_EMAIL_SUBJECT);
         variables.put("verificationLink", String.format("%s/account/?tab=change-password&email=%s&step=2&code=%s", feOrigin, user.getEmail(), verifyCode.getCode()));
         emailService.sendMail(user.getEmail(), VERIFY_EMAIL_SUBJECT, variables, VERIFY_EMAIL_TEMPLATE);
