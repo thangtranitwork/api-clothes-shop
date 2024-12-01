@@ -39,7 +39,24 @@ public enum ErrorCode {
     CAN_NOT_PAY_THIS_ORDER(608, "Can not pay this order", HttpStatus.BAD_REQUEST),
     // Uncategorized errors
     UNCATEGORIZED_ERROR(1000, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    ;
+
+
+    //Admin Product errors (2000 - 2099)
+    DUPLICATE_PRODUCT(2000, "Duplicate Product", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_FOUND(2001, "Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_VARIANT_NOT_FOUND(2002, "Product variant not found", HttpStatus.NOT_FOUND ),
+    DUPLICATE_PRODUCT_VARIANT(2003, "Duplicate Product variant", HttpStatus.BAD_REQUEST),
+    PRODUCT_TYPE_NOT_FOUND(2004, "Product type not found", HttpStatus.NOT_FOUND),
+    DUPLICATE_PRODUCT_TYPE(2005, "Duplicate product type", HttpStatus.BAD_REQUEST),
+    SIZE_NOT_FOUND(2006, "Size not found", HttpStatus.NOT_FOUND),
+    DUPLICATE_SIZE(2007, "Duplicate size", HttpStatus.BAD_REQUEST),
+    COLOR_NOT_FOUND(2008, "Color not found", HttpStatus.NOT_FOUND),
+    DUPLICATE_COLOR(2009, "Duplicate color", HttpStatus.BAD_REQUEST),
+    PRODUCT_DELETE_FAILED(2010,  "Cannot delete Product because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
+    PRODUCT_VARIANT_DELETE_FAILED(2011, "Cannot delete ProductVariant because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
+    PRODUCT_TYPE_DELETE_FAILED(2012, "Cannot delete ProductType because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
+    SIZE_DELETE_FAILED(2013,  "Cannot delete Size because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
+    COLOR_DELETE_FAILED(2014,  "Cannot delete Color because it is referenced by other entities.", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

@@ -48,7 +48,8 @@ public class SecurityConfig {
                     "/update-password/**",
                     "/forgot-password/**",
                     "/products/**",
-                    "/orders/payment-return"
+                    "/orders/payment-return",
+                    "/admin/**"
             };
 
 
@@ -64,6 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(PUBLIC_URL).permitAll()
+//                                .requestMatchers("/api/v1.0/admin/**").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer ->
