@@ -5,7 +5,6 @@ import com.clothes.admin.service.ProductVariantAdminService;
 import com.clothes.noc.entity.ProductVariant;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
-import com.clothes.noc.repository.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

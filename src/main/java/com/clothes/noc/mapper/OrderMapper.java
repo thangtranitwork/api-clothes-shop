@@ -7,8 +7,10 @@ import com.clothes.noc.entity.Order;
 import com.clothes.noc.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
+@Component
 public interface OrderMapper {
     OrderResponse toOrderResponse(Order order);
     Order toOrder(OrderRequest request);

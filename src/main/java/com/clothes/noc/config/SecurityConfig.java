@@ -26,6 +26,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -36,6 +39,8 @@ public class SecurityConfig {
 
     @Value("${FE_ORIGIN}")
     private String FE_ORIGIN;
+    @Value("${FE_ORIGIN_2}")
+    private String FE_ORIGIN_2;
 
     private final CustomJwtDecoder customJwtDecoder;
     private final PasswordEncoder passwordEncoder;
@@ -101,7 +106,10 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin(FE_ORIGIN);
+        List<String> origins = new ArrayList<>();
+        origins.add(FE_ORIGIN);
+        origins.add(FE_ORIGIN_2);
+        corsConfiguration.setAllowedOrigins(origins);
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);

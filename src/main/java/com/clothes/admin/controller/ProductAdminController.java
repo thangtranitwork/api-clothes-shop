@@ -2,10 +2,7 @@ package com.clothes.admin.controller;
 
 import com.clothes.admin.service.ProductAdminService;
 import com.clothes.noc.dto.response.ApiResponse;
-import com.clothes.noc.dto.response.ColorResponse;
 import com.clothes.noc.dto.response.ProductFullResponse;
-import com.clothes.noc.dto.response.ProductFullResponse;
-import com.clothes.noc.entity.Color;
 import com.clothes.noc.entity.Product;
 import com.clothes.noc.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;

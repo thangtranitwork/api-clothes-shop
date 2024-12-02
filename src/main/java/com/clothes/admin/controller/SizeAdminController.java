@@ -2,9 +2,7 @@ package com.clothes.admin.controller;
 
 import com.clothes.admin.service.SizeAdminService;
 import com.clothes.noc.dto.response.ApiResponse;
-import com.clothes.noc.dto.response.ColorResponse;
 import com.clothes.noc.dto.response.SizeResponse;
-import com.clothes.noc.entity.Color;
 import com.clothes.noc.entity.Size;
 import com.clothes.noc.mapper.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;

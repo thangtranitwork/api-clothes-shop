@@ -56,7 +56,11 @@ public enum ErrorCode {
     PRODUCT_VARIANT_DELETE_FAILED(2011, "Cannot delete ProductVariant because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
     PRODUCT_TYPE_DELETE_FAILED(2012, "Cannot delete ProductType because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
     SIZE_DELETE_FAILED(2013,  "Cannot delete Size because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
-    COLOR_DELETE_FAILED(2014,  "Cannot delete Color because it is referenced by other entities.", HttpStatus.BAD_REQUEST);
+    COLOR_DELETE_FAILED(2014,  "Cannot delete Color because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
+
+    //Admin Product errors (2100 - 2199)
+    ORDER_NOT_FOUND(2100, "Order not found", HttpStatus.NOT_FOUND)
+    ;
 
     private final int code;
     private final String message;
