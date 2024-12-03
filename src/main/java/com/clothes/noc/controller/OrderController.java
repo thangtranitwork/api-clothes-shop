@@ -36,29 +36,11 @@ public class OrderController {
 
     @GetMapping("/history")
     ApiResponse<Page<OrderResponse>> getHistory(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "12") int pageSize,
-            @RequestParam(required = false) String id,
-            @RequestParam(required = false) LocalDateTime from,
-            @RequestParam(required = false) LocalDateTime to,
-            @RequestParam(required = false) String status
+            SearchOrderRequest request,
+            Pageable pageable
             ) {
-
-        SearchOrderRequest request = SearchOrderRequest.builder()
-                .id(id)
-                .from(from)
-                .to(to)
-                .build();
-        try{
-            OrderStatus orderStatus = OrderStatus.valueOf(status);
-            request.setStatus(orderStatus);
-        }catch (IllegalArgumentException e){
-
-        } catch (NullPointerException e){
-
-        }
         return ApiResponse.<Page<OrderResponse>>builder()
-                .body(orderService.getHistory(request, page - 1, pageSize))
+                .body(orderService.getHistory(request, pageable))
                 .build();
     }
 

@@ -13,6 +13,7 @@ import com.clothes.noc.repository.spec.ProductSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,11 +44,9 @@ public class ProductService {
                 .build();
     }
 
-    public Page<ProductResponse> search(SearchProductRequest request, int page, int size) {
-        if(page < 0) page = 0;
-        if(size < 0) size = 10;
+    public Page<ProductResponse> search(SearchProductRequest request, Pageable pageable) {
         return productRepository
-                .findAll(ProductSpecifications.multipleFieldsSearch(request), PageRequest.of(page, size))
+                .findAll(ProductSpecifications.multipleFieldsSearch(request), pageable)
                 .map(productMapper::toProductResponse)
                 .map(product -> {
                     // Gắn danh sách màu vào product response

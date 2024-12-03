@@ -2,6 +2,7 @@ package com.clothes.noc.repository.spec;
 
 import com.clothes.noc.dto.request.SearchOrderRequest;
 import com.clothes.noc.entity.Order;
+import com.clothes.noc.entity.OrderStatus;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -10,6 +11,14 @@ import java.util.List;
 
 public class OrderSpecifications {
     public static Specification<Order> multipleFieldsSearch(String userId, SearchOrderRequest request) {
+        try{
+            OrderStatus orderStatus = OrderStatus.valueOf(request.getStatus());
+            request.setOrderStatus(orderStatus);
+        }catch (IllegalArgumentException e){
+
+        } catch (NullPointerException e){
+
+        }
         return ((root, query, criteriaBuilder) -> {
            List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.join("user").get("id"), userId));
@@ -18,8 +27,8 @@ public class OrderSpecifications {
                predicates.add(criteriaBuilder.like(root.get("id"), "%" + request.getId() + "%"));
            }
 
-           if (request.getStatus() != null) {
-               predicates.add(criteriaBuilder.equal(root.get("status"), request.getStatus()));
+           if (request.getOrderStatus() != null) {
+               predicates.add(criteriaBuilder.equal(root.get("status"), request.getOrderStatus()));
            }
 
            if(request.getFrom() != null) {

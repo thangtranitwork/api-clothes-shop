@@ -75,8 +75,6 @@
             <tr th:each="item : ${order.items}">
                 <td>
                     <p><strong th:text="${item.product.name}"></strong></p>
-                    <p>Type: <span th:text="${item.product.type.type}"></span> - <span th:text="${item.product.type.subtype}"></span></p>
-                    <p>Path: <span th:text="${item.product.path}"></span></p>
                 </td>
                 <td>
                     <p>Size: <span th:text="${item.variant.size.name}"></span></p>
@@ -91,7 +89,6 @@
     </div>
     <div class="order-payment">
         <p><strong>Payment Method:</strong> <span th:text="${order.payment.type}"></span></p>
-        <p th:if="${order.payment.payTime != null}"><strong>Payment Time:</strong> <span th:text="${order.payment.payTime}"></span></p>
     </div>
     <div class="footer">
         <p>View your order details online: <a th:href="${orderLink}" class="order-link">Click here</a></p>

@@ -13,5 +13,6 @@ public class SearchOrderRequest {
     String id;
     LocalDateTime from;
     LocalDateTime to;
-    OrderStatus status;
+    String status;
+    OrderStatus orderStatus;
 }

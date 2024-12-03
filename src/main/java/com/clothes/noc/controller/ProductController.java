@@ -10,9 +10,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/products")
@@ -23,28 +25,11 @@ public class ProductController {
 
     @GetMapping("/search")
     ApiResponse<Page<ProductResponse>> search(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String subtype,
-            @RequestParam(required = false) List<String> colors,
-            @RequestParam(required = false) List<String> sizes,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "12") int pageSize
+            SearchProductRequest request,
+            Pageable pageable
     ) {
-        SearchProductRequest request = SearchProductRequest.builder()
-                .name(name)
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
-                .type(type)
-                .subtype(subtype)
-                .colors(colors)
-                .sizes(sizes)
-                .build();
-
         return ApiResponse.<Page<ProductResponse>>builder()
-                .body(productService.search(request, page - 1, pageSize))
+                .body(productService.search(request, pageable))
                 .build();
     }
 

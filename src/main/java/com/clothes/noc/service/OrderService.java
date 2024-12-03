@@ -18,6 +18,7 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -53,12 +54,10 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXIST)));
     }
 
-    public Page<OrderResponse> getHistory(SearchOrderRequest request, int page, int size) {
-        if(page < 0) page = 0;
-        if(size < 0) size = 10;
-        return orderRepository.findAll(OrderSpecifications.multipleFieldsSearch(userService.getCurrentUserId(), request), PageRequest.of(page, size, Sort.by("orderTime").descending() ))
+    public Page<OrderResponse> getHistory(SearchOrderRequest request, Pageable pageable) {
+        return orderRepository.findAll(OrderSpecifications.multipleFieldsSearch(userService.getCurrentUserId(), request), pageable)
                 .map(orderMapper::toOrderResponse);
-    }
+     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public CreateOrderResponse createOrder(OrderRequest orderRequest, HttpServletRequest request) {
