@@ -70,7 +70,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(PUBLIC_URL).permitAll()
-//                                .requestMatchers("/api/v1.0/admin/**").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer ->
@@ -78,9 +77,9 @@ public class SecurityConfig {
                                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
-//                .oauth2Login(oauth2Login -> oauth2Login
-//                        .successHandler(customOAuth2LoginSuccessHandler())
-//                        .failureHandler(customOAuth2LoginFailureHandler()))
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .successHandler(customOAuth2LoginSuccessHandler())
+                        .failureHandler(customOAuth2LoginFailureHandler()))
                 .build();
     }
 
