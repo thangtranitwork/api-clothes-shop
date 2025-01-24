@@ -1,6 +1,6 @@
 package com.clothes.noc.dto.response;
 
-import com.clothes.noc.entity.PaymentType;
+import com.clothes.noc.enums.PaymentType;
 import lombok.Builder;
 import lombok.Data;
 

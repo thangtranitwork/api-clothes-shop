@@ -20,7 +20,7 @@ public class CartController {
     @PostMapping("/add")
     ApiResponse<Void> addProductToCart(@RequestBody @Valid VariantInCartRequest request) {
         cartService.add(request);
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
 
     @GetMapping("")

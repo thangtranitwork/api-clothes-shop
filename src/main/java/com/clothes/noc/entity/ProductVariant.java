@@ -15,7 +15,7 @@ import java.util.List;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(name = "unique_product_color_size",
-                        columnNames = {"product_id", "size_id", "color_code"})
+                        columnNames = {"product_id", "size_name", "color_code"})
         }
 )
 public class ProductVariant {
@@ -36,7 +36,7 @@ public class ProductVariant {
     List<CartItem> cartItems;
 
     @ManyToOne
-    @JoinColumn(name = "size_id", nullable = false)
+    @JoinColumn(name = "size_name", nullable = false)
     @ToString.Exclude
     Size size;
     @ManyToOne

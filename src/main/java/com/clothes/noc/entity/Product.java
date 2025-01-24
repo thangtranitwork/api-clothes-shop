@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,14 +22,15 @@ public class Product {
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     String description;
     @Column(nullable = false)
-    double price;
+    int price;
     @Column(nullable = false)
     String path;
     @Column(nullable = false)
     String img;
     @Column(nullable = false)
     String hoverImg;
-
+    @Builder.Default
+    LocalDateTime createdAt = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name = "product_type_id", nullable = false)
     @ToString.Exclude

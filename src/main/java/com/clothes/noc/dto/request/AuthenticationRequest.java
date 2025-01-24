@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import com.clothes.noc.entity.Platform;
+import com.clothes.noc.enums.Platform;
 
 @Data
 @NoArgsConstructor

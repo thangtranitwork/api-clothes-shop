@@ -1,17 +1,21 @@
 package com.clothes.noc.mapper;
 
-import com.clothes.noc.dto.response.*;
-import com.clothes.noc.entity.*;
+import com.clothes.noc.dto.request.ProductCreationRequest;
+import com.clothes.noc.dto.response.AdminProductResponse;
+import com.clothes.noc.dto.response.ProductCreationResponse;
+import com.clothes.noc.dto.response.ProductFullResponse;
+import com.clothes.noc.dto.response.ProductResponse;
+import com.clothes.noc.entity.Product;
 import org.mapstruct.Mapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
-@Component
+@Mapper(componentModel = "spring", uses = {ColorMapper.class, VariantMapper.class, SizeMapper.class, ProductTypeMapper.class})
 public interface ProductMapper {
     ProductResponse toProductResponse(Product product);
     ProductFullResponse toProductFullResponse(Product product);
-    ProductTypeResponse toProductTypeResponse(ProductType productType);
-    SizeResponse toSizeResponse(Size size);
-    ColorResponse toColorResponse(Color color);
-    ProductVariantResponse toProductVariantResponse(ProductVariant productVariant);
+    @Mapping(target = "type", ignore = true)
+    Product toProduct(ProductCreationRequest productCreationRequest);
+    ProductCreationResponse toProductCreationResponse(Product product);
+    @Mapping(target = "variants", source = "productVariants")
+    AdminProductResponse toAdminProductResponse(Product product);
 }

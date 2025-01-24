@@ -1,14 +1,12 @@
 package com.clothes.noc.service;
 
 import com.clothes.noc.entity.LoggedOutToken;
-import com.clothes.noc.entity.User;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.repository.LoggedOutTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -38,40 +36,41 @@ public class JwtUtil {
 
     private final LoggedOutTokenRepository loggedOutTokenRepository;
 
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(User user, boolean isRefreshToken, String jit) {
-        return createJwtToken(user, isRefreshToken, jit);
+    public String generateToken(String id, String role, boolean isRefreshToken, String jit) {
+        return createJwtToken(id, role, isRefreshToken, jit);
     }
 
-    private String createJwtToken(User user, boolean isRefreshToken, String jit) {
+    private String createJwtToken(String id, String role, boolean isRefreshToken, String jit) {
         int duration = !isRefreshToken ? accessTokenDuration : refreshTokenDuration;
         ChronoUnit unit = !isRefreshToken ? ChronoUnit.MINUTES : ChronoUnit.DAYS;
 
         Instant now = Instant.now();
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
-                .setIssuer("stu-e-learning")
-                .setSubject(String.valueOf(user.getId()))
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plus(duration, unit)))
-                .setId(jit)
-                .claim("scope", user.getRole())
+                .header()
+                .add("typ", "JWT")
+                .and()
+                .issuer("noc-clothes")
+                .subject(String.valueOf(id))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(duration, unit)))
+                .id(jit)
+                .claim("scope", role)
                 .claim("type", isRefreshToken ? "refresh-token" : "access-token")
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .signWith(getSigningKey())
                 .compact();
     }
 
     public Claims verifyToken(String token) {
         try {
-            return Jwts.parser()
-                    .setSigningKey(getSigningKey())
+            return Jwts.parser().verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (JwtException e) {
             throw new AppException(ErrorCode.TOKEN_IS_EXPIRED_OR_INVALID);
         }
@@ -94,16 +93,11 @@ public class JwtUtil {
     private Jwt getJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof JwtAuthenticationToken) {
-            return ((JwtAuthenticationToken) authentication).getToken();
+        if (authentication instanceof JwtAuthenticationToken authenticationToken) {
+            return authenticationToken.getToken();
         } else {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-    }
-
-    public boolean isAnonymousUser() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ANONYMOUS"));
     }
 
     public boolean isRefreshToken(String token) {

@@ -1,5 +1,7 @@
 package com.clothes.noc.entity;
 
+import com.clothes.noc.enums.Platform;
+import com.clothes.noc.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

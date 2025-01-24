@@ -9,12 +9,13 @@ import java.util.Map;
 @Setter
 @Getter
 public class AppException extends RuntimeException{
-    private ErrorCode errorCode;
-    private Map<String, Object> attributes = new HashMap<>();
+    private final ErrorCode errorCode;
+    private final transient Map<String, Object> attributes;
 
     public AppException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
+        this.attributes = new HashMap<>();
     }
 
     public AppException(ErrorCode errorCode, Map<String, Object> attributes) {

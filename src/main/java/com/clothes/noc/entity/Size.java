@@ -14,9 +14,6 @@ import java.util.List;
 @Entity
 public class Size {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
-    @Column(nullable = false, unique = true)
     String name;
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL)
     @ToString.Exclude

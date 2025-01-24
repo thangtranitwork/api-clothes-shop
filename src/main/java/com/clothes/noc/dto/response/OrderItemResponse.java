@@ -9,5 +9,5 @@ public class OrderItemResponse {
     ProductResponse product;
     ProductVariantResponse variant;
     int quantity;
-    double price;
+    int price;
 }

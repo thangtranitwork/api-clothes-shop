@@ -36,7 +36,6 @@ public class AppExceptionHandler {
                 .code(ErrorCode.ACCESS_DENIED.getCode())
                 .message(ErrorCode.ACCESS_DENIED.getMessage())
                 .build();
-        System.out.println(exception.getMessage());
         return ResponseEntity.status(ErrorCode.ACCESS_DENIED.getStatus()).body(apiResponse);
     }
 
@@ -61,6 +60,11 @@ public class AppExceptionHandler {
                 .build());
     }
 
+    @ExceptionHandler(MissingRequestCookieException.class)
+    private void handlerMissingRequestCookieException(MissingRequestCookieException exception) {
+        log.error(exception.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     private ResponseEntity<ApiResponse<Void>> handlerException(Exception exception) {
         ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
@@ -71,8 +75,5 @@ public class AppExceptionHandler {
         return ResponseEntity.status(ErrorCode.UNCATEGORIZED_ERROR.getStatus()).body(apiResponse);
     }
 
-    @ExceptionHandler(MissingRequestCookieException.class)
-    private void handlerMissingRequestCookieException(MissingRequestCookieException exception) {
 
-    }
 }

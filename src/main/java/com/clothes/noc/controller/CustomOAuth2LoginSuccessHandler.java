@@ -2,7 +2,8 @@ package com.clothes.noc.controller;
 
 import com.clothes.noc.dto.request.AuthenticationRequest;
 import com.clothes.noc.dto.request.OAuth2RegisterRequest;
-import com.clothes.noc.entity.Platform;
+import com.clothes.noc.dto.response.AuthenticationResponse;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.service.AuthenticationService;
@@ -10,24 +11,23 @@ import com.clothes.noc.service.RegisterService;
 import com.clothes.noc.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
+@Component
 public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RegisterService registerService;
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final UserService userService;
+    private final RegisterService registerService;
+    private final AuthenticationService authenticationService;
     @Value("${FE_ORIGIN}")
-    private String FE_ORIGIN;
+    private String feOrigin;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -41,7 +41,6 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         String platform = oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().toUpperCase();
 
         if (!userService.checkExists(email, Platform.valueOf(platform))) {
-            {
                 OAuth2RegisterRequest registerRequest = OAuth2RegisterRequest.builder()
                         .email(email)
                         .platform(platform)
@@ -51,16 +50,15 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
                     registerRequest.setLastname(oAuth2AuthenticationToken.getPrincipal().getAttributes().get("family_name").toString());
                     registerService.register(registerRequest);
                 }
-            }
-            authenticationService.oauth2LoginAuthenticate(
-                    AuthenticationRequest.builder()
-                            .email(email)
-                            .platform(platform)
-                            .build(),
-                    response);
-
-            response.sendRedirect(FE_ORIGIN + "/oauth2/success");
         }
+        AuthenticationResponse authenticationResponse = authenticationService.oauth2LoginAuthenticate(
+                AuthenticationRequest.builder()
+                        .email(email)
+                        .platform(platform)
+                        .build(),
+                response);
+
+        response.sendRedirect(feOrigin + String.format("/oauth2_callback/?status=success&token=%s", authenticationResponse.getAccessToken()));
     }
 }
 

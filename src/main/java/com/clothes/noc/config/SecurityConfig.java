@@ -11,14 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,14 +34,12 @@ public class SecurityConfig {
     private final UserRepository repository;
 
     @Value("${FE_ORIGIN}")
-    private String FE_ORIGIN;
-    @Value("${FE_ORIGIN_2}")
-    private String FE_ORIGIN_2;
-
+    private String feOrigin;
     private final CustomJwtDecoder customJwtDecoder;
-    private final PasswordEncoder passwordEncoder;
+    private final CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler;
+    private final CustomOAuth2LoginFailureHandler customOAuth2LoginFailureHandler;
     @NonFinal
-    private final String[] PUBLIC_URL = new String[]
+    private static final String[] PUBLIC_URL = new String[]
             {
                     "/auth/**",
                     "/register/**",
@@ -53,20 +47,16 @@ public class SecurityConfig {
                     "/update-password/**",
                     "/forgot-password/**",
                     "/products/**",
-                    "/orders/payment-return",
-                    "/admin/**"
+                    "/orders/payment-return"
             };
 
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new SecUserService(repository);
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .userDetailsService(new SecUserService(repository))
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(PUBLIC_URL).permitAll()
@@ -78,19 +68,10 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
-                        .successHandler(customOAuth2LoginSuccessHandler())
-                        .failureHandler(customOAuth2LoginFailureHandler()))
+                        .successHandler(customOAuth2LoginSuccessHandler)
+                        .failureHandler(customOAuth2LoginFailureHandler))
                 .build();
     }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
-        return authenticationProvider;
-    }
-
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
@@ -106,8 +87,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         List<String> origins = new ArrayList<>();
-        origins.add(FE_ORIGIN);
-        origins.add(FE_ORIGIN_2);
+        origins.add(feOrigin);
         corsConfiguration.setAllowedOrigins(origins);
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
@@ -116,16 +96,4 @@ public class SecurityConfig {
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
-
-    @Bean
-    public CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler() {
-        return new CustomOAuth2LoginSuccessHandler();
-    }
-
-    @Bean
-    public CustomOAuth2LoginFailureHandler customOAuth2LoginFailureHandler() {
-        return new CustomOAuth2LoginFailureHandler();
-    }
-
-
 }

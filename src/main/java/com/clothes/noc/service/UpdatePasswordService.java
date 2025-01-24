@@ -1,6 +1,6 @@
 package com.clothes.noc.service;
 
-import com.clothes.noc.entity.Platform;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.entity.User;
 import com.clothes.noc.entity.VerifyCode;
 import com.clothes.noc.exception.AppException;

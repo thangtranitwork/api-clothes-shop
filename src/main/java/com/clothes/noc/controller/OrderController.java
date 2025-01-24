@@ -5,7 +5,6 @@ import com.clothes.noc.dto.request.SearchOrderRequest;
 import com.clothes.noc.dto.response.ApiResponse;
 import com.clothes.noc.dto.response.CreateOrderResponse;
 import com.clothes.noc.dto.response.OrderResponse;
-import com.clothes.noc.entity.OrderStatus;
 import com.clothes.noc.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/orders")
@@ -25,7 +23,6 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderController {
     final OrderService orderService;
-
 
     @GetMapping("/{id}")
     public ApiResponse<OrderResponse> getOrder(@PathVariable String id) {
@@ -68,5 +65,4 @@ public class OrderController {
         orderService.cancelOrder(id);
         return ApiResponse.<OrderResponse>builder().build();
     }
-
 }

@@ -42,24 +42,26 @@ public enum ErrorCode {
 
 
     //Admin Product errors (2000 - 2099)
-    DUPLICATE_PRODUCT(2000, "Duplicate Product", HttpStatus.BAD_REQUEST),
-    PRODUCT_NOT_FOUND(2001, "Product not found", HttpStatus.NOT_FOUND),
+
     PRODUCT_VARIANT_NOT_FOUND(2002, "Product variant not found", HttpStatus.NOT_FOUND ),
     DUPLICATE_PRODUCT_VARIANT(2003, "Duplicate Product variant", HttpStatus.BAD_REQUEST),
     PRODUCT_TYPE_NOT_FOUND(2004, "Product type not found", HttpStatus.NOT_FOUND),
-    DUPLICATE_PRODUCT_TYPE(2005, "Duplicate product type", HttpStatus.BAD_REQUEST),
+    PRODUCT_SUBTYPE_TYPE_HAS_ALREADY_EXISTS(2005, "Product type has already exists", HttpStatus.BAD_REQUEST),
     SIZE_NOT_FOUND(2006, "Size not found", HttpStatus.NOT_FOUND),
     DUPLICATE_SIZE(2007, "Duplicate size", HttpStatus.BAD_REQUEST),
     COLOR_NOT_FOUND(2008, "Color not found", HttpStatus.NOT_FOUND),
     DUPLICATE_COLOR(2009, "Duplicate color", HttpStatus.BAD_REQUEST),
-    PRODUCT_DELETE_FAILED(2010,  "Cannot delete Product because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
-    PRODUCT_VARIANT_DELETE_FAILED(2011, "Cannot delete ProductVariant because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
     PRODUCT_TYPE_DELETE_FAILED(2012, "Cannot delete ProductType because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
     SIZE_DELETE_FAILED(2013,  "Cannot delete Size because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
     COLOR_DELETE_FAILED(2014,  "Cannot delete Color because it is referenced by other entities.", HttpStatus.BAD_REQUEST),
-
+    PRODUCT_DELETE_FAILED(2014,  "Cannot delete the product because it is referenced by 1 or many variants.", HttpStatus.BAD_REQUEST),
+    INVALID_VARIANT_QUANTITY(2015, "Variant quantity must greater than or equal 0", HttpStatus.BAD_REQUEST),
+    INVALID_PRICE(2016, "Price must greater than 0", HttpStatus.BAD_REQUEST),
     //Admin Product errors (2100 - 2199)
-    ORDER_NOT_FOUND(2100, "Order not found", HttpStatus.NOT_FOUND)
+    ORDER_NOT_FOUND(2100, "Order not found", HttpStatus.NOT_FOUND),
+    UPDATE_STATUS_FAILED(2101, "Update status failed", HttpStatus.BAD_REQUEST),
+    ONLY_IMAGE_FILES_ARE_ALLOWED(2102, "Only image files are allowed", HttpStatus.BAD_REQUEST),
+    UPLOAD_IMAGE_FAILED(2103, "Upload image failed", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

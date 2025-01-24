@@ -13,5 +13,4 @@ public class ProductVariantResponse {
     int quantity;
     SizeResponse size;
     ColorResponse color;
-    ProductResponse product;
 }

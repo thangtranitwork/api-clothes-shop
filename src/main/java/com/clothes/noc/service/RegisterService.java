@@ -4,9 +4,9 @@ import com.clothes.noc.dto.request.OAuth2RegisterRequest;
 import com.clothes.noc.dto.request.RegisterRequest;
 import com.clothes.noc.dto.response.AuthenticationResponse;
 import com.clothes.noc.entity.Cart;
-import com.clothes.noc.entity.Platform;
 import com.clothes.noc.entity.User;
 import com.clothes.noc.entity.VerifyCode;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.mapper.UserMapper;
@@ -127,7 +127,7 @@ public class RegisterService {
         userRepository.save(user);
         verifyCodeRepository.delete(verifyCode);
 
-        return authenticationService.generateResponse(user, response);
+        return authenticationService.generateResponse(user.getId(), user.getRole().name(), response);
     }
 
     public void resend(String email) {

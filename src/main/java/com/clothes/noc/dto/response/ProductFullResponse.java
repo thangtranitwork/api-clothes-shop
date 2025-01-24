@@ -11,7 +11,7 @@ public class ProductFullResponse {
     String id;
     String name;
     String description;
-    String price;
+    int price;
     String img;
     String hoverImg;
     String path;

@@ -37,6 +37,6 @@ public class RegisterController {
     ApiResponse<Void> resendCode(
             @RequestParam String email){
         registerService.resend(email);
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
 }

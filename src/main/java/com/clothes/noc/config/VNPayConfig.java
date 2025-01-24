@@ -1,6 +1,8 @@
 package com.clothes.noc.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,36 +12,35 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
+@Getter
+@Slf4j
 public class VNPayConfig {
-    public static String vnp_PayUrl;
-    public static String vnp_ReturnUrl;
-    public static String vnp_TmnCode;
-    public static String vnp_HashSecret;
-    public static String vnp_ApiUrl;
+    @Value("${vnpay.payUrl}")
+    private String vnpPayUrl;
 
-    public VNPayConfig(
-            @Value("${vnpay.payUrl}") String vnp_PayUrl,
-            @Value("${vnpay.returnUrl}") String vnp_ReturnUrl,
-            @Value("${vnpay.tmnCode}") String vnp_TmnCode,
-            @Value("${vnpay.hashSecret}") String vnp_HashSecret,
-            @Value("${vnpay.apiUrl}") String vnp_ApiUrl
-            ) {
-        this.vnp_PayUrl = vnp_PayUrl;
-        this.vnp_ReturnUrl = vnp_ReturnUrl;
-        this.vnp_TmnCode = vnp_TmnCode;
-        this.vnp_HashSecret = vnp_HashSecret;
-        this.vnp_ApiUrl = vnp_ApiUrl;
-    }
-    
-    public static String hashAllFields(HashMap fields) {
-        ArrayList fieldNames = new ArrayList(fields.keySet());
+    @Value("${vnpay.returnUrl}")
+    private String vnpReturnUrl;
+
+    @Value("${vnpay.tmnCode}")
+    private String vnpTmnCode;
+
+    @Value("${vnpay.hashSecret}")
+    private String vnpHashSecret;
+
+    @Value("${vnpay.apiUrl}")
+    private String vnpApiUrl;
+
+    private final Random rnd = new Random();
+
+    public String hashAllFields(Map<String, String> fields) {
+        ArrayList<String> fieldNames = new ArrayList<>(fields.keySet());
         Collections.sort(fieldNames);
         StringBuilder sb = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        Iterator<String> itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) fields.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+            String fieldName = itr.next();
+            String fieldValue = fields.get(fieldName);
+            if ((fieldValue != null) && !fieldValue.isEmpty()) {
                 sb.append(fieldName);
                 sb.append("=");
                 sb.append(fieldValue);
@@ -48,12 +49,11 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(vnp_HashSecret, sb.toString());
+        return hmacSHA512(vnpHashSecret, sb.toString());
     }
 
-    public static String hmacSHA512(final String key, final String data) {
+    public String hmacSHA512(final String key, final String data) {
         try {
-
             if (key == null || data == null) {
                 throw new NullPointerException();
             }
@@ -70,11 +70,12 @@ public class VNPayConfig {
             return sb.toString();
 
         } catch (Exception ex) {
+            log.error("Error generating HMAC SHA512: {}", ex.getMessage());
             return "";
         }
     }
 
-    public static String getIpAddress(HttpServletRequest request) {
+    public String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
             ipAdress = request.getHeader("X-FORWARDED-FOR");
@@ -87,8 +88,7 @@ public class VNPayConfig {
         return ipAdress;
     }
 
-    public static String getRandomNumber(int len) {
-        Random rnd = new Random();
+    public String getRandomNumber(int len) {
         String chars = "0123456789";
         StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {

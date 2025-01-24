@@ -18,23 +18,23 @@ public class UpdatePasswordController {
     @GetMapping("/{email}")
     ApiResponse<Void> updatePassword(@PathVariable String email) {
         updatePasswordService.sendMail(email);
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
 
     @PutMapping("/verify/{email}")
     ApiResponse<Void> verify(@PathVariable String email, @RequestParam(name = "code") String code) {
         updatePasswordService.verify(email, code);
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
 
     @PutMapping("/change/{email}")
     ApiResponse<Void> changePassword(@PathVariable String email, @RequestBody @Valid UpdatePasswordRequest request) {
         updatePasswordService.update(email, request.getPassword());
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
     @GetMapping("/resend/{email}")
     ApiResponse<Void> changePassword(@PathVariable String email) {
         updatePasswordService.resend(email);
-        return ApiResponse.<Void>builder().build();
+        return new ApiResponse<>();
     }
 }

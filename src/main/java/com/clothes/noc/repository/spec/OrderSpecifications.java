@@ -2,7 +2,7 @@ package com.clothes.noc.repository.spec;
 
 import com.clothes.noc.dto.request.SearchOrderRequest;
 import com.clothes.noc.entity.Order;
-import com.clothes.noc.entity.OrderStatus;
+import com.clothes.noc.enums.OrderStatus;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -10,18 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderSpecifications {
-    public static Specification<Order> multipleFieldsSearch(String userId, SearchOrderRequest request) {
+    private OrderSpecifications() {}
+    public static Specification<Order> multipleFieldsSearch(SearchOrderRequest request) {
         try{
             OrderStatus orderStatus = OrderStatus.valueOf(request.getStatus());
             request.setOrderStatus(orderStatus);
-        }catch (IllegalArgumentException e){
-
-        } catch (NullPointerException e){
-
+        }catch (IllegalArgumentException | NullPointerException e){
+            //No need to do something, just avoid orderStatus is null
         }
         return ((root, query, criteriaBuilder) -> {
            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(criteriaBuilder.equal(root.join("user").get("id"), userId));
+            if(request.getUserId() != null && !request.getUserId().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.join("user").get("id"), request.getUserId()));
+            }
 
            if(request.getId() != null && !request.getId().isEmpty()) {
                predicates.add(criteriaBuilder.like(root.get("id"), "%" + request.getId() + "%"));

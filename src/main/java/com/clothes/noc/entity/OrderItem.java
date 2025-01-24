@@ -17,7 +17,7 @@ public class OrderItem {
     @Column(nullable = false)
     int quantity;
     @Column(nullable = false)
-    double price;
+    int price;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)

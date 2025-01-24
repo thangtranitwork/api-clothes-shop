@@ -1,4 +1,4 @@
-package com.clothes.noc.entity;
+package com.clothes.noc.enums;
 
 public enum PaymentType {
     CASH,

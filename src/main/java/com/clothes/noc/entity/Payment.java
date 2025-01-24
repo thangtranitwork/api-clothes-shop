@@ -1,5 +1,6 @@
 package com.clothes.noc.entity;
 
+import com.clothes.noc.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +18,7 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+    String transactionId;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

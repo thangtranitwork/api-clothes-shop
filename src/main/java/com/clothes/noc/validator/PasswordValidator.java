@@ -12,10 +12,6 @@ public class PasswordValidator implements ConstraintValidator<Password, String> 
             "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
 
     @Override
-    public void initialize(Password constraintAnnotation) {
-    }
-
-    @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
         if (password == null) {
             return false;

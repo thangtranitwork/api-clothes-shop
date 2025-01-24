@@ -12,7 +12,7 @@ import java.util.List;
 public class ProductResponse {
     String id;
     String name;
-    String price;
+    int price;
     String img;
     String hoverImg;
     String path;

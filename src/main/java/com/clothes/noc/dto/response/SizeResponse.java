@@ -6,6 +6,5 @@ import lombok.Data;
 @Builder
 @Data
 public class SizeResponse {
-    String id;
     String name;
 }

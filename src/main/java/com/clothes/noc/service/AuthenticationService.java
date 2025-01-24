@@ -4,8 +4,8 @@ import com.clothes.noc.dto.request.AuthenticationRequest;
 import com.clothes.noc.dto.request.IntrospectRequest;
 import com.clothes.noc.dto.response.AuthenticationResponse;
 import com.clothes.noc.dto.response.IntrospectResponse;
-import com.clothes.noc.entity.Platform;
 import com.clothes.noc.entity.User;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.repository.UserRepository;
@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -30,10 +32,10 @@ public class AuthenticationService {
     final UserRepository userRepository;
     final PasswordEncoder passwordEncoder;
     final JwtUtil jwtUtil;
-    int MAX_FAILED_ATTEMPTS = 5;
-    @Value("${jwt.refreshToken.duration}")
     @NonFinal
-    int REFRESH_TOKEN_DURATION;
+    static final int MAX_FAILED_ATTEMPTS = 5;
+    @Value("${jwt.refreshToken.duration}")
+    int refreshTokenDuration;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         User user = userRepository.findByEmailAndPlatform(request.getEmail(), Platform.valueOf(request.getPlatform()))
@@ -52,37 +54,38 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.LOGIN_FAILED, Map.of("remainingTry", MAX_FAILED_ATTEMPTS - user.getFailedAttempts()));
         }
         resetFailedAttempts(user);
-        return generateResponse(user, response);
+        return generateResponse(user.getId(), user.getRole().name(), response);
     }
 
     public AuthenticationResponse oauth2LoginAuthenticate(AuthenticationRequest request, HttpServletResponse response) {
-        User user = userRepository.findByEmailAndPlatform(request.getEmail(), Platform.valueOf(request.getPlatform()))
+        String id = userRepository.getIdByEmailAndPlatform(request.getEmail(), Platform.valueOf(request.getPlatform()))
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
-        return generateResponse(user, response);
+        String role = userRepository.getRoleById(id).orElse(null);
+        return generateResponse(id, role, response);
     }
 
     public AuthenticationResponse refreshToken(String refreshToken) {
         if (!jwtUtil.isRefreshToken(refreshToken)) {
             throw new AppException(ErrorCode.TOKEN_IS_EXPIRED_OR_INVALID);
         }
-
-        User user = userRepository.findById(jwtUtil.getSub(refreshToken))
+        String userId = jwtUtil.getSub(refreshToken);
+        String role = userRepository.getRoleById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
         return AuthenticationResponse.builder()
-                .accessToken(jwtUtil.generateToken(user, false, jwtUtil.getJit(refreshToken)))
+                .accessToken(jwtUtil.generateToken(userId, role, false, jwtUtil.getJit(refreshToken)))
                 .build();
     }
 
-    public AuthenticationResponse generateResponse(User user, HttpServletResponse response) {
+    public AuthenticationResponse generateResponse(String userId, String role, HttpServletResponse response) {
         String id = UUID.randomUUID().toString();
-        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtUtil.generateToken(user, true, id));
+        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtUtil.generateToken(userId, role, true, id));
         refreshTokenCookie.setHttpOnly(true); // Đảm bảo HttpOnly để bảo mật
         refreshTokenCookie.setSecure(false);   // Chỉ gửi qua HTTPS
         refreshTokenCookie.setPath("/");      // Áp dụng cho tất cả các đường dẫn
-        refreshTokenCookie.setMaxAge(REFRESH_TOKEN_DURATION * 24 * 60 * 60); // Thời gian sống của cookie (7 ngày)
+        refreshTokenCookie.setMaxAge(refreshTokenDuration * 24 * 60 * 60); // Thời gian sống của cookie (7 ngày)
         response.addCookie(refreshTokenCookie);
         return AuthenticationResponse.builder()
-                .accessToken(jwtUtil.generateToken(user, false, id))
+                .accessToken(jwtUtil.generateToken(userId, role, false, id))
                 .build();
     }
 
@@ -100,12 +103,14 @@ public class AuthenticationService {
         if (jwtUtil.isRefreshToken(request.getAccessToken())) {
             throw new AppException(ErrorCode.TOKEN_IS_EXPIRED_OR_INVALID);
         }
-        User user = userRepository.findById(jwtUtil.getSub(request.getAccessToken()))
+        String userId = jwtUtil.getSub(request.getAccessToken());
+        log.info("token {} \n uid {}", request.getAccessToken(), userId);
+        String userRole = userRepository.getRoleById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
         return IntrospectResponse.builder()
                 .valid(true)
-                .id(user.getId())
-                .role(user.getRole().toString())
+                .id(userId)
+                .role(userRole)
                 .build();
     }
 

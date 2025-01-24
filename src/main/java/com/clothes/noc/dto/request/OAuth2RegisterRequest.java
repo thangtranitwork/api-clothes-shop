@@ -3,8 +3,8 @@ package com.clothes.noc.dto.request;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import com.clothes.noc.entity.Platform;
-import com.clothes.noc.entity.Role;
+import com.clothes.noc.enums.Platform;
+import com.clothes.noc.enums.Role;
 
 @Data
 @NoArgsConstructor

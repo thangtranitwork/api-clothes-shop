@@ -1,6 +1,6 @@
 package com.clothes.noc.dto.request;
 
-import com.clothes.noc.entity.Platform;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.validator.Password;
 import jakarta.validation.constraints.Email;
 import lombok.*;

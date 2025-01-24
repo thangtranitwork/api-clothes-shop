@@ -1,6 +1,7 @@
 package com.clothes.noc.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,12 +13,13 @@ import org.thymeleaf.context.Context;
 
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
     @Value("${spring.mail.username}")
-    private String FROM_EMAIL;
+    private String serverEmail;
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 
@@ -25,7 +27,7 @@ public class EmailService {
     public void sendMail(String toEmail, String subject, Map<String, Object> variables, String template) {
         MimeMessagePreparator preparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            messageHelper.setFrom(FROM_EMAIL);
+            messageHelper.setFrom(serverEmail);
             messageHelper.setSubject(subject);
             messageHelper.setTo(toEmail);
 
@@ -33,7 +35,7 @@ public class EmailService {
         };
 
         javaMailSender.send(preparator);
-        System.out.println("Send a email");
+        log.info("Send a email");
     }
 
     public String generateBody(Map<String, Object> variables, String template){

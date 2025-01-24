@@ -2,7 +2,7 @@ package com.clothes.noc.service;
 
 import com.clothes.noc.dto.request.UserProfileRequest;
 import com.clothes.noc.dto.response.UserProfileResponse;
-import com.clothes.noc.entity.Platform;
+import com.clothes.noc.enums.Platform;
 import com.clothes.noc.entity.User;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;

@@ -3,20 +3,26 @@ package com.clothes.noc.service;
 import com.clothes.noc.dto.request.SearchProductRequest;
 import com.clothes.noc.dto.response.*;
 import com.clothes.noc.entity.Product;
+import com.clothes.noc.entity.ProductVariant;
 import com.clothes.noc.exception.AppException;
 import com.clothes.noc.exception.ErrorCode;
 import com.clothes.noc.mapper.ProductMapper;
+import com.clothes.noc.mapper.SizeMapper;
+import com.clothes.noc.mapper.VariantMapper;
 import com.clothes.noc.repository.ColorRepository;
 import com.clothes.noc.repository.ProductRepository;
 import com.clothes.noc.repository.SizeRepository;
 import com.clothes.noc.repository.spec.ProductSpecifications;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -25,20 +31,24 @@ public class ProductService {
     private final SizeRepository sizeRepository;
     private final ColorRepository colorRepository;
     private final ProductMapper productMapper;
-
+    private final VariantMapper variantMapper;
+    private final SizeMapper sizeMapper;
+    @Transactional
     public ProductWithVariantResponse getByPath(String path) {
         Product product = productRepository.findByPath(path)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST));
         ProductFullResponse productFullResponse = productMapper.toProductFullResponse(product);
         productFullResponse.setColors(getColorResponses(productFullResponse.getId()));
         productFullResponse.setSizes(getSizeResponses(productFullResponse.getId()));
-        Set<String> imgs = new HashSet<>(Arrays.asList(product.getImg(), product.getImg()));
-        product.getProductVariants().forEach(productVariant -> imgs.add(productVariant.getImg()));
+        Set<String> imgs = new HashSet<>(Arrays.asList(product.getImg(), product.getHoverImg()));
+        List<ProductVariant> variants = product.getProductVariants();
+        variants.forEach(productVariant ->
+                imgs.add(productVariant.getImg()));
         return ProductWithVariantResponse.builder()
                 .product(productFullResponse)
-                .variants(product.getProductVariants()
+                .variants(variants
                         .stream()
-                        .map(productMapper::toProductVariantResponse)
+                        .map(variantMapper::toProductVariantResponse)
                         .toList())
                 .imgs(imgs.stream().toList())
                 .build();
@@ -63,7 +73,6 @@ public class ProductService {
                 .findAllSizesOfAProduct(id)
                 .stream()
                 .map(size -> SizeResponse.builder()
-                        .id(size.getId())
                         .name(size.getName())
                         .build())
                 .toList();
@@ -88,10 +97,8 @@ public class ProductService {
                                 .name(color.getName())
                                 .build()).toList())
                 .sizes(sizeRepository.findAll().stream()
-                        .map(size -> SizeResponse.builder()
-                                .id(size.getId())
-                                .name(size.getName())
-                                .build()).toList())
+                        .map(sizeMapper::toSizeResponse)
+                        .toList())
                 .build();
     }
 
@@ -104,10 +111,7 @@ public class ProductService {
                                 .build())
                         .toList())
                 .sizes(productRepository.findAllSizesOfAType(type).stream()
-                        .map(size -> SizeResponse.builder()
-                                .id(size.getId())
-                                .name(size.getName())
-                                .build())
+                        .map(sizeMapper::toSizeResponse)
                         .toList())
                 .build();
 
@@ -122,10 +126,7 @@ public class ProductService {
                                 .build())
                         .toList())
                 .sizes(productRepository.findAllSizesOfASubType(subtype).stream()
-                        .map(size -> SizeResponse.builder()
-                                .id(size.getId())
-                                .name(size.getName())
-                                .build())
+                        .map(sizeMapper::toSizeResponse)
                         .toList())
                 .build();
 
