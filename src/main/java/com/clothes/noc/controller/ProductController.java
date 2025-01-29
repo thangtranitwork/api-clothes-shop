@@ -60,4 +60,18 @@ public class ProductController {
                 .body(productService.getByPath(path))
                 .build();
     }
+
+    @GetMapping("/hottest")
+    ApiResponse<Page<ProductResponse>> getHottestProduct(Pageable pageable) {
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .body(productService.getHotProducts(pageable))
+                .build();
+    }
+
+    @GetMapping("/latest")
+    ApiResponse<Page<ProductResponse>> getLatestProduct(Pageable pageable) {
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .body(productService.getHotProducts(pageable))
+                .build();
+    }
 }

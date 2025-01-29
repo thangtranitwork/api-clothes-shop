@@ -26,7 +26,7 @@ public class RegisterController {
 
     @GetMapping("/verify")
     ApiResponse<AuthenticationResponse> verifyEmail(
-            @RequestParam(defaultValue = "") String code,
+            @RequestParam String code,
             HttpServletResponse response) {
         return ApiResponse.<AuthenticationResponse>builder()
                 .body(registerService.verify(code, response))

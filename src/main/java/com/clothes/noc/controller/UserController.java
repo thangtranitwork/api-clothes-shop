@@ -30,11 +30,4 @@ public class UserController {
                 .body(userService.updateProfile(request))
                 .build();
     }
-
-    @DeleteMapping("/delete")
-    ApiResponse<Void> deleteUser() {
-        userService.delete();
-        return ApiResponse.<Void>builder()
-                .build();
-    }
 }

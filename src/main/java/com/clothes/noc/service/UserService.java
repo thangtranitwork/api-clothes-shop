@@ -41,9 +41,6 @@ public class UserService {
         return userMapper.toUserProfileResponse(user);
     }
 
-    public void delete() {
-        userRepository.delete(getCurrentUser());
-    }
 
     public String getCurrentUserId() {
         return jwtUtil.getCurrentUserId();

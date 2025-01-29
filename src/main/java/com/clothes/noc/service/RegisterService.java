@@ -102,7 +102,7 @@ public class RegisterService {
 
     public void sendVerificationEmail(User user, VerifyCode verifyCode) {
         Map<String, Object> variables = new HashMap<>();
-        variables.put("expiryDate", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(verifyCode.getExpiryTime()));
+//        variables.put("expiryDate", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(verifyCode.getExpiryTime()));
         variables.put("title", VERIFY_EMAIL_SUBJECT);
         variables.put("verificationLink", String.format("%s/account/?tab=register&email=%s&step=2&code=%s", feOrigin, user.getEmail(), verifyCode.getCode()));
         emailService.sendMail(user.getEmail(), VERIFY_EMAIL_SUBJECT, variables, VERIFY_EMAIL_TEMPLATE);

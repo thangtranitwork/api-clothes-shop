@@ -17,7 +17,7 @@ public enum ErrorCode {
     VERIFY_CODE_INVALID(122, "Invalid verification code", HttpStatus.BAD_REQUEST),
     THIS_USER_HAS_BEEN_LOCKED(124, "This user has been locked due to multiple incorrect password attempts", HttpStatus.LOCKED),
     PASSWORD_IS_INVALID(103, "Password is invalid", HttpStatus.BAD_REQUEST),
-    EMAIL(125, "Invalid email address", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(125, "Invalid email address", HttpStatus.BAD_REQUEST),
     // Token-related errors (300-399)
     TOKEN_IS_EXPIRED_OR_INVALID(300, "Token is expired or invalid", HttpStatus.UNAUTHORIZED),
     // Access-related errors (400-499)

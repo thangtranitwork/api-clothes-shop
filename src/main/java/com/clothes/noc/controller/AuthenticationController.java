@@ -26,7 +26,7 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/logout")
+    @DeleteMapping("/logout")
     ApiResponse<Void> logout(@CookieValue(value = "refreshToken") String refreshToken, HttpServletResponse response) {
         if(refreshToken.isEmpty()) {
             return null;

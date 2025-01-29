@@ -46,13 +46,11 @@ public class OrderService {
     @Value("${FE_ORIGIN}")
     private String feOrigin;
 
-    @Transactional
     public OrderResponse getOrder(String id) {
         return orderMapper.toOrderResponse(orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXIST)));
     }
 
-    @Transactional
     public Page<OrderResponse> getHistory(SearchOrderRequest request, Pageable pageable) {
         request.setUserId(userService.getCurrentUserId());
         return orderRepository.findAll(OrderSpecifications.multipleFieldsSearch(request), pageable)

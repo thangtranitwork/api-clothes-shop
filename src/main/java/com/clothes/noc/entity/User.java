@@ -46,7 +46,6 @@ public class User {
     @Builder.Default
     int failedAttempts = 0;
     LocalDateTime lockoutTime;
-
     @OneToOne(mappedBy = "user")
     @ToString.Exclude
     VerifyCode verifyCode;

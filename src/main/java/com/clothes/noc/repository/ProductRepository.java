@@ -3,6 +3,8 @@ package com.clothes.noc.repository;
 import com.clothes.noc.entity.Color;
 import com.clothes.noc.entity.Product;
 import com.clothes.noc.entity.Size;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -55,4 +57,10 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
     List<Size> findAllSizesOfASubType(String subtype);
 
     Optional<Product> findByPath(String path);
+
+    @Query("""
+                SELECT p
+                FROM Product p
+            """)
+    Page<Product> findHotProducts(Pageable pageable);
 }

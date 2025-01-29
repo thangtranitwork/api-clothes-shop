@@ -13,7 +13,6 @@ import com.clothes.noc.repository.ColorRepository;
 import com.clothes.noc.repository.ProductRepository;
 import com.clothes.noc.repository.SizeRepository;
 import com.clothes.noc.repository.spec.ProductSpecifications;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final VariantMapper variantMapper;
     private final SizeMapper sizeMapper;
-    @Transactional
+
     public ProductWithVariantResponse getByPath(String path) {
         Product product = productRepository.findByPath(path)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST));
@@ -52,6 +51,11 @@ public class ProductService {
                         .toList())
                 .imgs(imgs.stream().toList())
                 .build();
+    }
+
+    public Page<ProductResponse> getHotProducts(Pageable pageable) {
+        return productRepository.findHotProducts(pageable)
+                .map(productMapper::toProductResponse);
     }
 
     public Page<ProductResponse> search(SearchProductRequest request, Pageable pageable) {

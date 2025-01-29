@@ -108,7 +108,6 @@ public class AuthenticationService {
         String userRole = userRepository.getRoleById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTS));
         return IntrospectResponse.builder()
-                .valid(true)
                 .id(userId)
                 .role(userRole)
                 .build();

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, String> {
-    @Query("SELECT c FROM Cart c JOIN FETCH c.items WHERE c.user.id = :userId")
+    @Query("SELECT c FROM Cart c LEFT JOIN FETCH c.items WHERE c.user.id = :userId")
     Cart findByUserId(String userId);
 }
