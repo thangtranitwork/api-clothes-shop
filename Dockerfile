@@ -1,14 +1,17 @@
-# Sử dụng OpenJDK làm base image
-FROM openjdk:17-jdk-slim
-
-# Thiết lập thư mục làm việc
+# Stage 1: Build JAR
+FROM maven:3.9.9-amazoncorretto-17 AS build
 WORKDIR /app
 
-# Copy file JAR từ thư mục target vào container
-COPY target/app.jar app.jar
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Expose cổng 8080
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Stage 2: Runtime
+FROM amazoncorretto:17.0.12-alpine3.17
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Chạy ứng dụng
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
